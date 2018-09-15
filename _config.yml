@@ -215,6 +215,10 @@ font:
 # Value is the target link (E.g. GitHub: https://github.com/iissnan)
 social:
   GitHub: https://github.com/fasetto
+  StackOverFlow: https://stackoverflow.com/users/9648420/serkan
+  Email: mailto:serkanbircan21@yandex.com
+  Dribble: https://dribbble.com/fasetto
+  LinkedIn: https://www.linkedin.com/in/fasetto/
 
 
 # Social Links Icons
@@ -227,6 +231,10 @@ social_icons:
   # Icon Mappings.
   # KeyMapsToSocialItemKey: NameOfTheIconFromFontAwesome
   GitHub: github
+  StackOverflow: stack-overflow
+  Email: envelope
+  Dribble: dribbble
+  LinkedIn: linkedin-square
   Twitter:
   Weibo:
 
