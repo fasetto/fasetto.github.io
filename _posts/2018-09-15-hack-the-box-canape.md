@@ -7,6 +7,7 @@ image: http://fasetto.github.io/assets/images/htb-canape.png
 author: fasetto
 categories: [write-up, hackthebox]
 tags: [writeup, pentest, hackthebox]
+excerpt_separator: <!-- more-->
 ---
 
 ![repository-pattern.png]({{ site.baseurl }}/assets/images/htb-canape.png)
@@ -15,7 +16,7 @@ tags: [writeup, pentest, hackthebox]
 
 In this article I will be doing **Canape** machine on [Hack the Box](https://hackthebox.eu). <br>
 Lets start..
-
+<!-- more-->
 # Enumeration
 First we need to know which ports are open. So lets start with **port-knocking**
 
