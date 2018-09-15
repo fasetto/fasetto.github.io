@@ -79,7 +79,7 @@ plugins:
 favicon: /assets/favicon.ico
 
 # Set default keywords (Use a comma to separate)
-keywords: "Information Security, Cyber Security, Cyber, Hacking, fasetto, CTF, System Administration, Red Team"
+keywords: "Information Security, Cyber Security, Cyber, Hacking, fasetto, CTF, System Administration, DevOps, Programming, C#, .Net, Python"
 
 # Set rss to false to disable feed link.
 # Leave rss as empty to use site's feed link.
