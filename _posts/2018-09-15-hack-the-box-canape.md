@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "{Hack the Box} \\\\ Canape Writeup"
+title: "{Hack the Box} \\\\ Canape Write-Up"
 date: 2018-09-15
 image: http://fasetto.github.io/assets/images/htb-canape.png
 author: fasetto
