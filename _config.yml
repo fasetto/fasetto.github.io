@@ -14,7 +14,7 @@ date_format: '%Y-%m-%d'
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com' and baseurl as '/child'
-url:
+url: http://fasetto.github.io
 baseurl:
 permalink: /:title/
 
@@ -213,8 +213,8 @@ font:
 # Social Links
 # Key is the link label showing to end users.
 # Value is the target link (E.g. GitHub: https://github.com/iissnan)
-#social:
-  #LinkLabel: Link
+social:
+  GitHub: https://github.com/fasetto
 
 
 # Social Links Icons
@@ -226,7 +226,7 @@ social_icons:
   enable: true
   # Icon Mappings.
   # KeyMapsToSocialItemKey: NameOfTheIconFromFontAwesome
-  GitHub: https://github.com/fasetto
+  GitHub: github
   Twitter:
   Weibo:
 
