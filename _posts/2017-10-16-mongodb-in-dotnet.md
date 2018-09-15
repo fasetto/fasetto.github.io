@@ -5,14 +5,14 @@ image: http://fasetto.github.io/images/mongodb-logo.png
 author: fasetto
 categories: [database, mongodb, repository-pattern]
 tags: [repositorypattern, mongodb]
+excerpt_separator: <!-- more-->
 ---
 
 ![mongodb-logo]({{ site.baseurl }}/assets/images/mongodb-logo.png)
-<br/> <br/>
-
+<br/>
 ## MongoDB
 **MongoDB**, *NoSQL* kavramıyla ortaya çıkmış *document-oriented* veri modelini kullanan açık kaynak bir veritabanıdır. <br/>
-<!-- more -->
+<!-- more-->
 Bu yazımda .Net projelerinizde nasıl **MongoDB** kullanabileceğinizi anlatacağım.
 
 > Bu Makalemde *MongoDB* kurulumuna değinmeyeceğim, kurduğunuzu varsayarak anlatım yapacağım. <br/>

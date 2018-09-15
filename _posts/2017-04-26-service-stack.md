@@ -5,14 +5,14 @@ image: http://fasetto.github.io/assets/images/servicestack-logo-png
 author: fasetto
 categories: [web-services, rest-api]
 tags: [servicestack webservices, restfullservice]
+excerpt_separator: <!-- more-->
 ---
 
 ![servicestack-logo]({{ site.baseurl }}/assets/images/servicestack-logo.png)
-<br/> <br/>
-
+<br/>
 ## Nedir bu ServiceStack ?
 **WCF** ve **Web API** ye alternatif olarak *cross-platform* olarak kullanabileceğimiz *open-source* bir *web service framework.*
-<!--more-->
+<!-- more-->
 <br/> Eğer .Net Framework çatısı altında çalışıyorsanız *WCF* kullanabilirsiniz fakat web servislerinizi *Windows* dışındaki platformlara da dağıtmak istiyorsanız **ServiceStack** ideal bir seçenektir.
 <br/> <br/> WCF client ve server arasındaki iletişimi sağlayabilmek için *data contracts (veri sözleşmeleri)* kullanır.
 **ServiceStack** bu bakımdan biraz da WCF 'e benzer.

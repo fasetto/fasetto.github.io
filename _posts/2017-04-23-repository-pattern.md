@@ -8,7 +8,7 @@ tags: [repositorypattern, entityframework, unitofwork, designpatterns]
 ---
 
 ![repository-pattern.png]({{ site.baseurl }}/assets/images/repository-pattern.png)
-<br/> <br/>
+<br/>
 Repository pattern bir soyutlamadır. Amaç karışıklığı azaltarak kodun geri kalanını kalıcı kılmaktır.
 
 ## Faydaları !
