@@ -2,7 +2,6 @@
 layout: post
 title: "{Hack the Box} \\\\ Canape Writeup"
 date: 2018-09-15
-description: "Write up for the Hack the box machine Canape."
 image: http://fasetto.github.io/assets/images/htb-canape.png
 author: fasetto
 categories: [write-up, hackthebox]
