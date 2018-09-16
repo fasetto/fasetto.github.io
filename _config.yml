@@ -102,7 +102,7 @@ copyright: true
 # Canonical, set a canonical link tag in your jekyll, you could use it for your SEO of blog.
 # See: https://support.google.com/webmasters/answer/139066
 # Tips: Before you open this tag, remember set up your URL in _config.yml ( ex. url: http://yourdomain.com )
-canonical: true
+canonical: false
 
 # Change headers hierarchy on site-subtitle (will be main site description) and on all post/pages titles for better SEO-optimization.
 seo: false
@@ -215,6 +215,7 @@ font:
 # Value is the target link (E.g. GitHub: https://github.com/iissnan)
 social:
   GitHub: https://github.com/fasetto
+  Reddit: https://www.reddit.com/user/imfasetto
   StackOverFlow: https://stackoverflow.com/users/9648420/serkan
   Email: mailto:serkanbircan21@yandex.com
   Dribble: https://dribbble.com/fasetto
@@ -235,6 +236,7 @@ social_icons:
   Email: envelope
   Dribble: dribbble
   LinkedIn: linkedin-square
+  Reddit: reddit-alien
   Twitter:
   Weibo:
 
@@ -444,7 +446,7 @@ gitalk:
 #google_site_verification:
 
 # Google Analytics
-#google_analytics:
+google_analytics: UA-125815315-1
 
 # Yandex Webmaster tools verification setting
 # See: https://webmaster.yandex.ru/
