@@ -153,6 +153,9 @@ The password is **flightoficarus**
 
 ## Stage Two
 I tried to connect to the machine using **ssh** with username **zeus** and passwords I found, but didn't worked.<br>
+
+![gif](https://media.giphy.com/media/E2USislQIlsfm/giphy.gif)
+
 Than I thought, I know I am in a **docker container.** There isn't another user on that container.
 There must be another container or actual box itself. <br>
 So I tried with username **icarus** and passwords I found. It worked.<br>
@@ -163,6 +166,8 @@ ssh icarus@10.10.10.83 -p 2222
 ```
 
 ![img]({{ site.baseurl }}/assets/images/olympus/QHsUB1EOWKPmUfsg0CfcT.png)
+
+![gif](https://media.giphy.com/media/wOzfGOVG5oapW/giphy.gif){:width="400px" :height="324px"}
 
 ## Enumeration
 Found something interesting again. **ctfolympus.htb** <br>
@@ -259,6 +264,8 @@ Almost forgot, I wanna show you guys how **knockd** daemon configured on this ma
 Check this.
 
 ![img]({{ site.baseurl }}/assets/images/olympus/Fb6i6t2YgwO5ztA7tHDEj.png)
+
+![gif](https://media.giphy.com/media/RPwrO4b46mOdy/giphy.gif)
 
 Thats it for **Olympus.** I learned a few things from this machine. <br>
 If you have a question or something you can leave a comment.<br>
