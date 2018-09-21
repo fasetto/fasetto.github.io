@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.2">Jekyll</generator><link href="http://fasetto.github.io/atom.xml" rel="self" type="application/atom+xml" /><link href="http://fasetto.github.io/" rel="alternate" type="text/html" /><updated>2018-09-21T19:36:17+03:00</updated><id>http://fasetto.github.io/</id><title type="html">fasetto’s blog</title><subtitle>Full Stack Developer, UI &amp; UX Designer</subtitle><author><name>fasetto</name></author><entry><title type="html">{Hack the Box} \\ Olympus Write-Up</title><link href="http://fasetto.github.io/hack-the-box-olympus/" rel="alternate" type="text/html" title="{Hack the Box} \\ Olympus Write-Up" /><published>2018-09-21T00:00:00+03:00</published><updated>2018-09-21T00:00:00+03:00</updated><id>http://fasetto.github.io/hack-the-box-olympus</id><content type="html" xml:base="http://fasetto.github.io/hack-the-box-olympus/">&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/htb-olympus.png&quot; alt=&quot;olympus&quot; /&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.2">Jekyll</generator><link href="http://fasetto.github.io/atom.xml" rel="self" type="application/atom+xml" /><link href="http://fasetto.github.io/" rel="alternate" type="text/html" /><updated>2018-09-21T21:43:15+03:00</updated><id>http://fasetto.github.io/</id><title type="html">fasetto’s blog</title><subtitle>Full Stack Developer, UI &amp; UX Designer</subtitle><author><name>fasetto</name></author><entry><title type="html">{Hack the Box} \\ Olympus Write-Up</title><link href="http://fasetto.github.io/hack-the-box-olympus/" rel="alternate" type="text/html" title="{Hack the Box} \\ Olympus Write-Up" /><published>2018-09-21T00:00:00+03:00</published><updated>2018-09-21T00:00:00+03:00</updated><id>http://fasetto.github.io/hack-the-box-olympus</id><content type="html" xml:base="http://fasetto.github.io/hack-the-box-olympus/">&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/htb-olympus.png&quot; alt=&quot;olympus&quot; /&gt;&lt;/p&gt;
 &lt;h2 id=&quot;hi-everyone&quot;&gt;Hi everyone,&lt;/h2&gt;
 
 &lt;p&gt;In this article I’ll show you guys how I pwned &lt;strong&gt;Olympus&lt;/strong&gt; machine on &lt;a href=&quot;https://hackthebox.eu&quot;&gt;Hack the Box&lt;/a&gt;. &lt;br /&gt;
@@ -140,8 +140,11 @@ After 20-30 mins later &lt;strong&gt;aircrack-ng&lt;/strong&gt; cracked the file
 The password is &lt;strong&gt;flightoficarus&lt;/strong&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;stage-two&quot;&gt;Stage Two&lt;/h2&gt;
-&lt;p&gt;I tried to connect to the machine using &lt;strong&gt;ssh&lt;/strong&gt; with username &lt;strong&gt;zeus&lt;/strong&gt; and passwords I found, but didn’t worked.&lt;br /&gt;
-Than I thought, I know I am in a &lt;strong&gt;docker container.&lt;/strong&gt; There isn’t another user on that container.
+&lt;p&gt;I tried to connect to the machine using &lt;strong&gt;ssh&lt;/strong&gt; with username &lt;strong&gt;zeus&lt;/strong&gt; and passwords I found, but didn’t worked.&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://media.giphy.com/media/E2USislQIlsfm/giphy.gif&quot; alt=&quot;gif&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Than I thought, I know I am in a &lt;strong&gt;docker container.&lt;/strong&gt; There isn’t another user on that container.
 There must be another container or actual box itself. &lt;br /&gt;
 So I tried with username &lt;strong&gt;icarus&lt;/strong&gt; and passwords I found. It worked.&lt;br /&gt;
 &lt;strong&gt;icarus&lt;/strong&gt; is the right username, and the password is &lt;strong&gt;Too_cl0se_to_th3_Sun&lt;/strong&gt;&lt;/p&gt;
@@ -151,6 +154,8 @@ So I tried with username &lt;strong&gt;icarus&lt;/strong&gt; and passwords I fou
 &lt;/div&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/olympus/QHsUB1EOWKPmUfsg0CfcT.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://media.giphy.com/media/wOzfGOVG5oapW/giphy.gif&quot; alt=&quot;gif&quot; width=&quot;400px&quot; /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;enumeration-1&quot;&gt;Enumeration&lt;/h2&gt;
 &lt;p&gt;Found something interesting again. &lt;strong&gt;ctfolympus.htb&lt;/strong&gt; &lt;br /&gt;
@@ -248,6 +253,8 @@ Docker allow us to share our data between our machine and docker containers. So 
 Check this.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/olympus/Fb6i6t2YgwO5ztA7tHDEj.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://media.giphy.com/media/RPwrO4b46mOdy/giphy.gif&quot; alt=&quot;gif&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Thats it for &lt;strong&gt;Olympus.&lt;/strong&gt; I learned a few things from this machine. &lt;br /&gt;
 If you have a question or something you can leave a comment.&lt;br /&gt;
