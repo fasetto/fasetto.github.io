@@ -215,8 +215,8 @@ As I could understand there is another place to go. **3456, 8234, 62431** these 
 I was stucked here. But my friend **Kunal** told me about **port-knocking.**
 
 I searched on google and found these great articles.
-> https://www.digitalocean.com/community/tutorials/how-to-use-port-knocking-to-hide-your-ssh-daemon-from-attackers-on-ubuntu <br>
-> https://www.bgasecurity.com/2014/05/port-knocking-yontemi-ile-portlar/
+* https://www.digitalocean.com/community/tutorials/how-to-use-port-knocking-to-hide-your-ssh-daemon-from-attackers-on-ubuntu
+* https://www.bgasecurity.com/2014/05/port-knocking-yontemi-ile-portlar/
 
 
 Basicly the **port 22** is opened but **hidden**. We can't access directly. But if we knock specific ports in a particular order, **knockd** service catch that **sequence** and allow us to connect.<br>
