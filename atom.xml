@@ -1,4 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.2">Jekyll</generator><link href="http://fasetto.github.io/atom.xml" rel="self" type="application/atom+xml" /><link href="http://fasetto.github.io/" rel="alternate" type="text/html" /><updated>2018-09-21T21:43:15+03:00</updated><id>http://fasetto.github.io/</id><title type="html">fasetto’s blog</title><subtitle>Full Stack Developer, UI &amp; UX Designer</subtitle><author><name>fasetto</name></author><entry><title type="html">{Hack the Box} \\ Olympus Write-Up</title><link href="http://fasetto.github.io/hack-the-box-olympus/" rel="alternate" type="text/html" title="{Hack the Box} \\ Olympus Write-Up" /><published>2018-09-21T00:00:00+03:00</published><updated>2018-09-21T00:00:00+03:00</updated><id>http://fasetto.github.io/hack-the-box-olympus</id><content type="html" xml:base="http://fasetto.github.io/hack-the-box-olympus/">&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/htb-olympus.png&quot; alt=&quot;olympus&quot; /&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.2">Jekyll</generator><link href="http://fasetto.github.io/atom.xml" rel="self" type="application/atom+xml" /><link href="http://fasetto.github.io/" rel="alternate" type="text/html" /><updated>2018-09-22T18:44:49+03:00</updated><id>http://fasetto.github.io/</id><title type="html">fasetto’s blog</title><subtitle>Full Stack Developer, UI &amp; UX Designer</subtitle><author><name>fasetto</name></author><entry><title type="html">Buffer Overflow Tutorials 01: How it works ?</title><link href="http://fasetto.github.io/bof/" rel="alternate" type="text/html" title="Buffer Overflow Tutorials 01:  How it works ?" /><published>2018-09-22T00:00:00+03:00</published><updated>2018-09-22T00:00:00+03:00</updated><id>http://fasetto.github.io/bof</id><content type="html" xml:base="http://fasetto.github.io/bof/">&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/htb-olympus.png&quot; alt=&quot;cover&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;hello-everyone&quot;&gt;Hello everyone,&lt;/h2&gt;
+
+&lt;p&gt;This is gonna be
+&lt;!-- more--&gt;&lt;/p&gt;
+&lt;h2 id=&quot;enumeration&quot;&gt;Enumeration&lt;/h2&gt;</content><author><name>fasetto</name></author><category term="bufferoverflow" /><category term="exploit" /><category term="pentest" /><category term="tutorial" /><category term="radare2" /><summary type="html">Hello everyone, This is gonna be</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://fasetto.github.io/assets/images/htb-olympus.png" /></entry><entry><title type="html">{Hack the Box} \\ Olympus Write-Up</title><link href="http://fasetto.github.io/hack-the-box-olympus/" rel="alternate" type="text/html" title="{Hack the Box} \\ Olympus Write-Up" /><published>2018-09-21T00:00:00+03:00</published><updated>2018-09-21T00:00:00+03:00</updated><id>http://fasetto.github.io/hack-the-box-olympus</id><content type="html" xml:base="http://fasetto.github.io/hack-the-box-olympus/">&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/htb-olympus.png&quot; alt=&quot;olympus&quot; /&gt;&lt;/p&gt;
 &lt;h2 id=&quot;hi-everyone&quot;&gt;Hi everyone,&lt;/h2&gt;
 
 &lt;p&gt;In this article I’ll show you guys how I pwned &lt;strong&gt;Olympus&lt;/strong&gt; machine on &lt;a href=&quot;https://hackthebox.eu&quot;&gt;Hack the Box&lt;/a&gt;. &lt;br /&gt;
@@ -203,10 +208,10 @@ ctfolympus.htb.		86400	IN	SOA	ns1.ctfolympus.htb. ns2.ctfolympus.htb. 2018042301
 I was stucked here. But my friend &lt;strong&gt;Kunal&lt;/strong&gt; told me about &lt;strong&gt;port-knocking.&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;I searched on google and found these great articles.&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;https://www.digitalocean.com/community/tutorials/how-to-use-port-knocking-to-hide-your-ssh-daemon-from-attackers-on-ubuntu &lt;br /&gt;
-https://www.bgasecurity.com/2014/05/port-knocking-yontemi-ile-portlar/&lt;/p&gt;
-&lt;/blockquote&gt;
+&lt;ul&gt;
+  &lt;li&gt;https://www.digitalocean.com/community/tutorials/how-to-use-port-knocking-to-hide-your-ssh-daemon-from-attackers-on-ubuntu&lt;/li&gt;
+  &lt;li&gt;https://www.bgasecurity.com/2014/05/port-knocking-yontemi-ile-portlar/&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;p&gt;Basicly the &lt;strong&gt;port 22&lt;/strong&gt; is opened but &lt;strong&gt;hidden&lt;/strong&gt;. We can’t access directly. But if we knock specific ports in a particular order, &lt;strong&gt;knockd&lt;/strong&gt; service catch that &lt;strong&gt;sequence&lt;/strong&gt; and allow us to connect.&lt;br /&gt;
 Doen’t matter if that ports closed or not.&lt;/p&gt;
