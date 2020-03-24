@@ -63,6 +63,7 @@ defaults:
 # Atom feed
 feed:
   path: atom.xml
+  excerpt_only: true
 
 # Plugins
 ## Docs: https://help.github.com/articles/configuring-jekyll-plugins/
