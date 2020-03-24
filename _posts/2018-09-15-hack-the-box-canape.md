@@ -7,7 +7,6 @@ author: fasetto
 categories: [write-up, hackthebox]
 tags: [writeup, pentest, hackthebox]
 excerpt_separator: <!-- more-->
-excerpt: <!-- more-->
 ---
 
 ![repository-pattern.png]({{ site.baseurl }}/assets/images/htb-canape.png)

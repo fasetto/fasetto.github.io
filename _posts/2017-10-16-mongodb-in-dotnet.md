@@ -6,7 +6,6 @@ author: fasetto
 categories: [database, mongodb, repository-pattern]
 tags: [repositorypattern, mongodb]
 excerpt_separator: <!-- more-->
-excerpt: <!-- more-->
 ---
 
 ![mongodb-logo]({{ site.baseurl }}/assets/images/mongodb-logo.png)

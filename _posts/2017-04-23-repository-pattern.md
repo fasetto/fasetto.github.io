@@ -6,7 +6,6 @@ author: fasetto
 categories: [design-patterns, .net, repository-pattern, unit-of-work]
 tags: [repositorypattern, entityframework, unitofwork, designpatterns]
 excerpt_separator: <!-- more-->
-excerpt: <!-- more-->
 ---
 
 ![repository-pattern.png]({{ site.baseurl }}/assets/images/repository-pattern.png)

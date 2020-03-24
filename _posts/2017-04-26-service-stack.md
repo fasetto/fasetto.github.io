@@ -6,7 +6,6 @@ author: fasetto
 categories: [web-services, rest-api]
 tags: [servicestack webservices, restfullservice]
 excerpt_separator: <!-- more-->
-excerpt: <!-- more-->
 ---
 
 ![servicestack-logo]({{ site.baseurl }}/assets/images/servicestack-logo.png)
