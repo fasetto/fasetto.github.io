@@ -7,6 +7,7 @@ author: fasetto
 categories: [write-up, hackthebox]
 tags: [writeup, olympus, pentest, hackthebox]
 excerpt_separator: <!-- more-->
+excerpt: <!-- more-->
 ---
 
 ![olympus]({{ site.baseurl }}/assets/images/olympus/htb-olympus.png)
