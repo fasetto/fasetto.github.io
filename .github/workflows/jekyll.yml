@@ -1,20 +1,18 @@
-name: Jekyll site CI
+name: Publish to GitHub Pages
 
 on:
   push:
-    branches: [ source ]
-  pull_request:
-    branches: [ source ]
+    branches:
+      - source
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  build-and-publish:
+    runs-on: ubuntu-latest # This job uses a GitHub-hosted runner.
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the site in the jekyll/builder container
-      run: |
-        docker run \
-        -v ${{ github.workspace }}:/srv/jekyll -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
-        jekyll/builder:latest /bin/bash -c "chmod 777 /srv/jekyll && jekyll build --future"
+      - uses: actions/checkout@v2
+
+      - uses: meitar/jekyll-builder-for-github-pages-action@master
+        with:
+          secret_gh_pages_api_token: ${{ secrets.GH_PAGES_TOKEN }}
+          gh_pages_publishing_source: master
