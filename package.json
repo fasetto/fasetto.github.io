@@ -2,9 +2,9 @@
   "name": "fasetto.github.io",
   "version": "1.0.0",
   "description": "",
-  "minify": "gulp",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "minify": "gulp"
   },
   "repository": {
     "type": "git",
