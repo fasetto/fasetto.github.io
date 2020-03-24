@@ -2,7 +2,7 @@
   "name": "fasetto.github.io",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "minify": "gulp",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

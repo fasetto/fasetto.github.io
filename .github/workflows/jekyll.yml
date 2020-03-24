@@ -12,6 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: actions/setup-node@v1
+      - run: npm install
+      - run: npm run minify
+
       - uses: meitar/jekyll-builder-for-github-pages-action@master
         with:
           secret_gh_pages_api_token: ${{ secrets.GH_PAGES_TOKEN }}
