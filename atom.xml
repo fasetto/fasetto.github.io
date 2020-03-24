@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.2">Jekyll</generator><link href="http://fasetto.github.io/atom.xml" rel="self" type="application/atom+xml" /><link href="http://fasetto.github.io/" rel="alternate" type="text/html" /><updated>2020-03-24T06:14:26-05:00</updated><id>http://fasetto.github.io/</id><title type="html">fasetto’s blog</title><subtitle>Back-end Developer, UI &amp; UX Designer</subtitle><author><name>fasetto</name></author><entry><title type="html">{Hack the Box} \\ Olympus Write-Up</title><link href="http://fasetto.github.io/hack-the-box-olympus/" rel="alternate" type="text/html" title="{Hack the Box} \\ Olympus Write-Up" /><published>2018-09-21T00:00:00-05:00</published><updated>2018-09-21T00:00:00-05:00</updated><id>http://fasetto.github.io/hack-the-box-olympus</id><content type="html" xml:base="http://fasetto.github.io/hack-the-box-olympus/">&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/htb-olympus.png&quot; alt=&quot;olympus&quot; /&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.5.2">Jekyll</generator><link href="http://fasetto.github.io/atom.xml" rel="self" type="application/atom+xml" /><link href="http://fasetto.github.io/" rel="alternate" type="text/html" /><updated>2020-03-24T06:19:55-05:00</updated><id>http://fasetto.github.io/</id><title type="html">fasetto’s blog</title><subtitle>Back-end Developer, UI &amp; UX Designer</subtitle><author><name>fasetto</name></author><entry><title type="html">{Hack the Box} \\ Olympus Write-Up</title><link href="http://fasetto.github.io/hack-the-box-olympus/" rel="alternate" type="text/html" title="{Hack the Box} \\ Olympus Write-Up" /><published>2018-09-21T00:00:00-05:00</published><updated>2018-09-21T00:00:00-05:00</updated><id>http://fasetto.github.io/hack-the-box-olympus</id><content type="html" xml:base="http://fasetto.github.io/hack-the-box-olympus/">&lt;p&gt;&lt;img src=&quot;/assets/images/olympus/htb-olympus.png&quot; alt=&quot;olympus&quot; /&gt;&lt;/p&gt;
 &lt;h2 id=&quot;hi-everyone&quot;&gt;Hi everyone,&lt;/h2&gt;
 
 &lt;p&gt;In this article I’ll show you guys how I pwned &lt;strong&gt;Olympus&lt;/strong&gt; machine on &lt;a href=&quot;https://hackthebox.eu&quot;&gt;Hack the Box&lt;/a&gt;. &lt;br /&gt;
@@ -709,14 +709,15 @@ Repository pattern bir soyutlamadır. Amaç karışıklığı azaltarak kodun ge
 &lt;ul&gt;
   &lt;li&gt;Unit testler yazmayı kolaylaştırır.&lt;/li&gt;
   &lt;li&gt;Kodun bakım ve yönetimi kolaylaşır.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;CRUD&lt;/strong&gt; &lt;em&gt;(Create, Read, Update, Delete)&lt;/em&gt; işlemlerimizi hızlıca gerçekleştirebiliriz.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;CRUD&lt;/strong&gt; &lt;em&gt;(Create, Read, Update, Delete)&lt;/em&gt; işlemlerimizi hızlıca gerçekleştirebiliriz.
+&lt;!-- more--&gt;
+    &lt;h1 id=&quot;nasıl-repository-oluşturulur-&quot;&gt;Nasıl repository oluşturulur ?&lt;/h1&gt;
+    &lt;p&gt;Repository pattern ‘ı doğru bir şekilde uygulayabilmek için izlemeniz gereken tek bir kural var.&lt;/p&gt;
+    &lt;blockquote&gt;
+      &lt;p&gt;Repository sınıfınıza, ihtiyaç duyana kadar &lt;strong&gt;hiç bir şey eklemeyin !&lt;/strong&gt;&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
 &lt;/ul&gt;
-
-&lt;h1 id=&quot;nasıl-repository-oluşturulur-&quot;&gt;Nasıl repository oluşturulur ?&lt;/h1&gt;
-&lt;p&gt;Repository pattern ‘ı doğru bir şekilde uygulayabilmek için izlemeniz gereken tek bir kural var.&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;Repository sınıfınıza, ihtiyaç duyana kadar &lt;strong&gt;hiç bir şey eklemeyin !&lt;/strong&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
 
 &lt;p&gt;Geliştiricilerin bir çoğu generic bir repository oluturup, içine ihtiyaç duyabilecekleri tüm fonksiyonları da ekleyerek bunu bir base class olarak kullanırlar. &lt;strong&gt;Bu yanlıştır.&lt;/strong&gt;&lt;/p&gt;
 
@@ -775,4 +776,4 @@ Repository pattern yazının en başında da dediğimiz gibi &lt;strong&gt;soyut
 &lt;h2 id=&quot;lazy-loading-öğrenin&quot;&gt;Lazy-loading öğrenin&lt;/h2&gt;
 &lt;p&gt;Eğer bilmiyorsanız &lt;a href=&quot;https://www.google.com/search?q=lazy+loading&quot; target=&quot;_blank&quot;&gt;Google&lt;/a&gt;
 &lt;br /&gt;
-&lt;br /&gt;&lt;/p&gt;</content><author><name>fasetto</name></author><category term="repositorypattern" /><category term="entityframework" /><category term="unitofwork" /><category term="designpatterns" /><summary type="html">Repository pattern bir soyutlamadır. Amaç karışıklığı azaltarak kodun geri kalanını kalıcı kılmaktır.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://fasetto.github.io/assets/images/repository-pattern.png" /></entry></feed>
+&lt;br /&gt;&lt;/p&gt;</content><author><name>fasetto</name></author><category term="repositorypattern" /><category term="entityframework" /><category term="unitofwork" /><category term="designpatterns" /><summary type="html">Repository pattern bir soyutlamadır. Amaç karışıklığı azaltarak kodun geri kalanını kalıcı kılmaktır. Faydaları ! Unit testler yazmayı kolaylaştırır. Kodun bakım ve yönetimi kolaylaşır. CRUD (Create, Read, Update, Delete) işlemlerimizi hızlıca gerçekleştirebiliriz.</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://fasetto.github.io/assets/images/repository-pattern.png" /></entry></feed>
