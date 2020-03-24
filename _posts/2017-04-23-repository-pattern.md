@@ -5,6 +5,7 @@ image: http://fasetto.github.io/assets/images/repository-pattern.png
 author: fasetto
 categories: [design-patterns, .net, repository-pattern, unit-of-work]
 tags: [repositorypattern, entityframework, unitofwork, designpatterns]
+excerpt_separator: <!-- more-->
 ---
 
 ![repository-pattern.png]({{ site.baseurl }}/assets/images/repository-pattern.png)
@@ -15,7 +16,7 @@ Repository pattern bir soyutlamadır. Amaç karışıklığı azaltarak kodun ge
   - Unit testler yazmayı kolaylaştırır.
   - Kodun bakım ve yönetimi kolaylaşır.
   - **CRUD** *(Create, Read, Update, Delete)* işlemlerimizi hızlıca gerçekleştirebiliriz.
-
+<!-- more-->
 # Nasıl repository oluşturulur ?
 Repository pattern 'ı doğru bir şekilde uygulayabilmek için izlemeniz gereken tek bir kural var.
 > Repository sınıfınıza, ihtiyaç duyana kadar **hiç bir şey eklemeyin !**
