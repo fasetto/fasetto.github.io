@@ -6,7 +6,7 @@
 # Site
 title: fasetto's blog
 subtitle: SERKAN (@fasetto)
-description: Full Stack Developer, UI & UX Designer
+description: Back-end Developer, UI & UX Designer
 author: fasetto
 # Support language: de, en, fr-FR, id, ja, ko, pt-BR, pt, ru, zh-Hans, zh-hk, zh-tw
 language: en
@@ -79,7 +79,7 @@ plugins:
 favicon: /assets/favicon.ico
 
 # Set default keywords (Use a comma to separate)
-keywords: "Information Security, Cyber Security, Cyber, Hacking, fasetto, CTF, System Administration, DevOps, Programming, C#, .Net, Python"
+keywords: "Information Security, Cyber Security, Hacking, fasetto, CTF, System Administration, Programming, C#, .Net Core, Pythoni Design Patterns"
 
 # Set rss to false to disable feed link.
 # Leave rss as empty to use site's feed link.
